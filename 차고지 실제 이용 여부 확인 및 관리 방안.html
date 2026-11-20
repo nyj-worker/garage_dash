@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>차고지 실제 이용 여부 확인 및 관리 방안 | Intelligence Slate</title>
+
+  <!-- Pretendard Variable Webfont CDN -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: [
+              '"Pretendard Variable"',
+              'Pretendard',
+              '-apple-system',
+              'BlinkMacSystemFont',
+              'system-ui',
+              'Roboto',
+              '"Helvetica Neue"',
+              '"Segoe UI"',
+              '"Apple SD Gothic Neo"',
+              '"Noto Sans KR"',
+              'sans-serif'
+            ],
+          },
+          boxShadow: {
+            'bento': '0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.08)',
+            'bento-hover': '0 4px 12px rgba(15, 23, 42, 0.06), 0 16px 32px -12px rgba(79, 70, 229, 0.14)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* 기본 타이포그래피 및 부드러운 스크롤 렌더링 */
+    body {
+      font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      letter-spacing: -0.015em;
+    }
+
+    /* 벤토 카드 필터링·전환 페이딩 애니메이션 */
+    @keyframes bentoFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.99);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .bento-animate {
+      animation: bentoFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* 모바일 스크롤바 숨김 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* 커스텀 레인지 슬라이더 (Intelligence Slate & Indigo) */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 0.45rem;
+      border-radius: 9999px;
+      background: #e2e8f0;
+    }
+    .dark input[type="range"]::-webkit-slider-runnable-track {
+      background: #1e293b;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      margin-top: -5px;
+      height: 1.05rem;
+      width: 1.05rem;
+      border-radius: 9999px;
+      background: #4f46e5;
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.35);
+      transition: transform 0.18s ease, background-color 0.18s ease;
+    }
+    .dark input[type="range"]::-webkit-slider-thumb {
+      background: #6366f1;
+      border-color: #0f172a;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    /* 원형 프로그레스 링 트랜지션 */
+    #topProgressRing {
+      transition: stroke-dashoffset 0.1s linear;
+    }
+  </style>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 min-h-screen selection:bg-indigo-500/20 selection:text-indigo-700 dark:selection:text-indigo-300 lg:grid lg:grid-cols-[18rem_minmax(0,1fr)]">
+  <nav class="dashboard-return no-print lg:col-span-2" aria-label="통합 대시보드 탐색"><a href="index.html#resources">통합 대시보드로 돌아가기</a></nav>
+
+  <!-- ==================== 1. 데스크톱 고정 사이드바 (lg 이상) ==================== -->
+  <aside
+    aria-label="데스크톱 내비게이션"
+    class="hidden lg:flex lg:flex-col sticky top-0 self-start h-screen z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-r border-slate-200/70 dark:border-slate-800 px-6 py-7 justify-between transition-colors duration-300"
+  >
+    <div class="space-y-8 overflow-y-auto no-scrollbar pr-1">
+      <!-- 브랜드 헤더 -->
+      <div>
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200/70 dark:border-indigo-500/20 mb-3.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-pulse"></span>
+          <span class="text-[11px] font-bold tracking-wide text-indigo-700 dark:text-indigo-300">INTELLIGENCE SLATE</span>
+        </div>
+        <h1 class="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white leading-snug">
+          차고지 실제 이용 여부<br />확인 및 관리 방안
+        </h1>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+          화물자동차 차고지 실태 점검·사후 관리 정책 브리핑 및 실무 지원 대시보드
+        </p>
+      </div>
+
+      <!-- 섹션 바로가기 메뉴 -->
+      <nav aria-label="섹션 바로가기" class="space-y-1.5">
+        <p class="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
+          목차 · Navigation
+        </p>
+        <a href="#sec-overview" data-nav-target="sec-overview" class="sidebar-nav-link group flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-300">
+          <span class="nav-dot w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700 transition-all duration-300"></span>
+          <span>전체 요약 벤토</span>
+        </a>
+        <a href="#sec-enforcement" data-nav-target="sec-enforcement" class="sidebar-nav-link group flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-300">
+          <span class="nav-dot w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700 transition-all duration-300"></span>
+          <span>1. 단속·사후관리</span>
+        </a>
+        <a href="#sec-capacity" data-nav-target="sec-capacity" class="sidebar-nav-link group flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-300">
+          <span class="nav-dot w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700 transition-all duration-300"></span>
+          <span>2. 주차장 수용 한도</span>
+        </a>
+        <a href="#sec-issues" data-nav-target="sec-issues" class="sidebar-nav-link group flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-300">
+          <span class="nav-dot w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700 transition-all duration-300"></span>
+          <span>3. 예상 문제점 분석</span>
+        </a>
+        <a href="#tool-notice" data-nav-target="tool-notice" data-nav-tool="true" class="sidebar-nav-link group flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-300">
+          <span class="nav-dot w-2 h-2 rounded-full bg-emerald-400 transition-all duration-300"></span>
+          <span>실무 도구함</span>
+          <span class="ml-auto px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">2종</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- 하단 액션 영역: 다크모드 토글 + 전체 요약 복사 -->
+    <div class="pt-5 border-t border-slate-200/70 dark:border-slate-800 space-y-2.5">
+      <button
+        type="button"
+        data-theme-toggle
+        role="switch"
+        aria-checked="false"
+        class="w-full flex items-center justify-between px-4 py-2.5 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200/70 dark:hover:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all duration-200"
+      >
+        <span class="flex items-center gap-2">
+          <svg class="icon-sun hidden w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+          <svg class="icon-moon w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+          <span class="theme-label">다크 모드</span>
+        </span>
+        <span class="toggle-track relative inline-flex h-5 w-9 items-center rounded-full bg-slate-300 dark:bg-indigo-600 transition-colors">
+          <span class="toggle-knob inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform translate-x-1 dark:translate-x-4"></span>
+        </span>
+      </button>
+
+      <button
+        type="button"
+        data-copy-full-summary
+        class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white text-xs font-bold shadow-sm transition-all duration-200"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+        <span>전체 핵심 요약 복사</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ==================== 2. 모바일 글래스모피즘 고정 헤더 (lg 미만) ==================== -->
+  <header class="lg:hidden sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/70 dark:border-slate-800 px-4 py-3 transition-colors duration-300">
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <button
+          id="btnOpenMobileMenu"
+          type="button"
+          aria-label="메뉴 열기"
+          aria-expanded="false"
+          aria-controls="mobileDrawer"
+          class="p-2.5 -ml-1 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <div class="truncate">
+          <div class="text-[10px] font-bold tracking-wider text-indigo-600 dark:text-indigo-400">INTELLIGENCE SLATE</div>
+          <div class="text-sm font-extrabold text-slate-900 dark:text-white truncate">차고지 실제 이용 여부 관리 방안</div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button
+          type="button"
+          data-theme-toggle
+          aria-label="다크 모드 전환"
+          class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+        >
+          <svg class="icon-sun hidden w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+          <svg class="icon-moon w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 모바일 사이드 드로어 + 백드롭 블러 -->
+  <div id="mobileDrawerWrapper" class="lg:hidden fixed inset-0 z-50 pointer-events-none opacity-0 transition-opacity duration-300" aria-hidden="true">
+    <!-- 백드롭 -->
+    <div id="mobileDrawerBackdrop" class="absolute inset-0 bg-slate-950/45 backdrop-blur-sm"></div>
+    <!-- 드로어 패널 -->
+    <div
+      id="mobileDrawer"
+      class="relative w-72 max-w-[82vw] h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-2xl px-5 py-6 flex flex-col justify-between transform -translate-x-full transition-transform duration-300 ease-out"
+    >
+      <div class="space-y-6 overflow-y-auto no-scrollbar">
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300 mb-2">
+              INTELLIGENCE SLATE
+            </span>
+            <h2 class="text-base font-extrabold text-slate-900 dark:text-white leading-snug">
+              차고지 실제 이용 여부<br />확인 및 관리 방안
+            </h2>
+          </div>
+          <button id="btnCloseMobileMenu" type="button" aria-label="메뉴 닫기" class="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+
+        <nav aria-label="모바일 섹션 바로가기" class="space-y-1.5">
+          <a href="#sec-overview" data-nav-target="sec-overview" class="mobile-nav-link sidebar-nav-link flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all">
+            <span class="nav-dot w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+            <span>전체 요약 벤토</span>
+          </a>
+          <a href="#sec-enforcement" data-nav-target="sec-enforcement" class="mobile-nav-link sidebar-nav-link flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all">
+            <span class="nav-dot w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+            <span>1. 단속·사후관리</span>
+          </a>
+          <a href="#sec-capacity" data-nav-target="sec-capacity" class="mobile-nav-link sidebar-nav-link flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all">
+            <span class="nav-dot w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+            <span>2. 주차장 수용 한도</span>
+          </a>
+          <a href="#sec-issues" data-nav-target="sec-issues" class="mobile-nav-link sidebar-nav-link flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all">
+            <span class="nav-dot w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+            <span>3. 예상 문제점 분석</span>
+          </a>
+          <a href="#tool-notice" data-nav-target="tool-notice" data-nav-tool="true" class="mobile-nav-link sidebar-nav-link flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all">
+            <span class="nav-dot w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span>실무 도구함</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-2.5">
+        <button
+          type="button"
+          data-copy-full-summary
+          class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+          <span>전체 핵심 요약 복사</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 3. 메인 콘텐츠 영역 ==================== -->
+  <div class="min-w-0 min-h-screen flex flex-col">
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-10 space-y-10">
+
+      <!-- ==================== 스티키 통합 검색 & 카테고리 필터 바 ==================== -->
+      <section aria-label="통합 검색 및 필터링" class="sticky top-[62px] lg:top-4 z-30">
+        <div class="bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-bento p-3.5 sm:p-4 space-y-3">
+          <div class="flex flex-col md:flex-row md:items-center gap-3">
+            <!-- 통합 검색창 -->
+            <div class="relative flex-1">
+              <svg class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                id="globalSearchInput"
+                type="text"
+                placeholder="키워드 검색 (예: 제19조, 풍선효과, 화성, 반려, 소명, 업무 과부하)..."
+                class="w-full pl-11 pr-24 py-2.5 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 border border-transparent focus:border-indigo-500/60 focus:bg-white dark:focus:bg-slate-900 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+              />
+              <div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                <span id="matchCountBadge" class="px-2 py-0.5 rounded-lg text-[11px] font-bold bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300 tabular-nums">
+                  전체
+                </span>
+                <button
+                  id="btnClearSearch"
+                  type="button"
+                  aria-label="검색어 초기화"
+                  class="hidden p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/70 dark:hover:bg-slate-700 transition"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- 카테고리 필터 칩 -->
+            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5 md:pb-0" role="group" aria-label="카테고리 필터">
+              <button type="button" data-filter-chip="all" class="filter-chip shrink-0 px-3.5 py-2 rounded-2xl text-xs font-bold transition-all duration-200">
+                전체
+              </button>
+              <button type="button" data-filter-chip="enforcement" class="filter-chip shrink-0 px-3.5 py-2 rounded-2xl text-xs font-bold transition-all duration-200">
+                단속·사후관리
+              </button>
+              <button type="button" data-filter-chip="capacity" class="filter-chip shrink-0 px-3.5 py-2 rounded-2xl text-xs font-bold transition-all duration-200">
+                수용 한도 관리
+              </button>
+              <button type="button" data-filter-chip="issues" class="filter-chip shrink-0 px-3.5 py-2 rounded-2xl text-xs font-bold transition-all duration-200">
+                예상 문제점
+              </button>
+              <button type="button" data-filter-chip="tools" class="filter-chip shrink-0 px-3.5 py-2 rounded-2xl text-xs font-bold transition-all duration-200">
+                실무 도구
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 검색 결과 없음 (Empty State) -->
+      <div id="emptySearchState" class="hidden bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/70 dark:border-slate-800 shadow-bento p-10 text-center space-y-3">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        </div>
+        <h3 class="text-base font-extrabold text-slate-900 dark:text-white">일치하는 정책 항목이 없습니다</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+          입력하신 검색어(<span id="emptyQueryText" class="font-bold text-indigo-600 dark:text-indigo-400"></span>)와 일치하는 카드가 없습니다. 다른 키워드를 입력하거나 필터를 초기화해 주세요.
+        </p>
+        <button
+          id="btnResetAllFilters"
+          type="button"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition"
+        >
+          검색 및 필터 초기화
+        </button>
+      </div>
+
+      <!-- ==================== 섹션 0: 핵심 요약 벤토 대시보드 (Hero Bento Grid) ==================== -->
+      <section id="sec-overview" data-section-group="overview" class="policy-section scroll-mt-36 space-y-5">
+        <!-- Hero 메인 배너 카드 -->
+        <div
+          data-searchable
+          data-category="overview"
+          data-keywords="차고지 실제 이용 여부 확인 및 관리 방안 밤샘주차 단속 사후관리 민영 공동주차장 수용 한도 예상 문제점"
+          class="bento-item relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white p-6 sm:p-8 lg:p-10 shadow-bento border border-slate-800"
+        >
+          <div class="absolute -right-20 -top-20 w-72 h-72 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none"></div>
+          <div class="absolute -left-16 -bottom-24 w-64 h-64 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none"></div>
+
+          <div class="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div class="space-y-3 max-w-2xl">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-indigo-200">
+                <span>정책 브리핑 · 화물자동차 운수사업법 제19조</span>
+              </div>
+              <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
+                차고지 실제 이용 여부 확인 및 관리 방안
+              </h2>
+              <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+                밤샘주차 단속 데이터 기반의 사후 관리와 민영·공동주차장 수용 한도 검증 체계를 구축하고, 관리 강화 시 예상되는 4대 행정·현장 리스크를 종합 검토합니다.
+              </p>
+            </div>
+            <div class="flex flex-wrap gap-2.5 shrink-0">
+              <button
+                type="button"
+                data-copy-full-summary
+                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white text-slate-900 hover:bg-indigo-50 text-xs sm:text-sm font-bold shadow-sm transition active:scale-[0.98]"
+              >
+                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                <span>문서 전체 요약 복사</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3대 핵심 축 벤토 카드 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <!-- 축 1: 밤샘주차 단속·사후관리 -->
+          <a
+            href="#sec-enforcement"
+            data-searchable
+            data-category="enforcement"
+            data-keywords="밤샘주차 단속 사후관리 데이터화 소명 안내 제19조 행정처분"
+            class="bento-item group bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-200/70 dark:border-slate-800 shadow-bento hover:shadow-bento-hover hover:-translate-y-1 hover:border-indigo-300 dark:hover:border-indigo-500/60 transition-all duration-300 flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-extrabold text-sm">01</span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                  핵심 관리 방안
+                </span>
+              </div>
+              <h3 class="text-lg font-extrabold text-slate-900 dark:text-white mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                밤샘주차 단속·사후관리
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                누적 단속 데이터화 → 소명 안내 및 증빙 요구 → 미소명·허위 등록 시 제19조 행정처분
+              </p>
+            </div>
+            <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-indigo-600 dark:text-indigo-400">
+              <span>3단계 절차 및 소명 안내문 도구</span>
+              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+            </div>
+          </a>
+
+          <!-- 축 2: 민영·공동주차장 수용 한도 관리 -->
+          <a
+            href="#sec-capacity"
+            data-searchable
+            data-category="capacity"
+            data-keywords="민영 공동주차장 수용 한도 관리 3대 지표 대조 초과 반려"
+            class="bento-item group bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-200/70 dark:border-slate-800 shadow-bento hover:shadow-bento-hover hover:-translate-y-1 hover:border-emerald-300 dark:hover:border-emerald-500/60 transition-all duration-300 flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-extrabold text-sm">02</span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                  현장 점검 기준
+                </span>
+              </div>
+              <h3 class="text-lg font-extrabold text-slate-900 dark:text-white mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                민영·공동주차장 수용 한도 관리
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                3대 핵심 지표(전체·화물차 가능·기체결 계약) 현장 대조 → 수용 한도 초과 시 신규 접수 반려
+              </p>
+            </div>
+            <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-emerald-600 dark:text-emerald-400">
+              <span>점검 지표 및 판정 시뮬레이터</span>
+              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+            </div>
+          </a>
+
+          <!-- 축 3: 강화 시 4대 예상 문제점 -->
+          <a
+            href="#sec-issues"
+            data-searchable
+            data-category="issues"
+            data-keywords="4대 예상 문제점 풍선효과 역민원 형평성 업무 과부하 리스크"
+            class="bento-item group bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-200/70 dark:border-slate-800 shadow-bento hover:shadow-bento-hover hover:-translate-y-1 hover:border-rose-300 dark:hover:border-rose-500/60 transition-all duration-300 flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 font-extrabold text-sm">03</span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400">
+                  4대 리스크 검토
+                </span>
+              </div>
+              <h3 class="text-lg font-extrabold text-slate-900 dark:text-white mb-2 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
+                강화 시 4대 예상 문제점
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                관외 이탈(풍선효과), 인프라 부족 역민원, 타 지자체 형평성 논란, 담당자 업무 과부하
+              </p>
+            </div>
+            <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-rose-600 dark:text-rose-400">
+              <span>리스크 분석 및 비교 요약표</span>
+              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- ==================== 섹션 1: 1. 밤샘주차 단속 프로그램 구축 및 적발 차량 사후 관리 ==================== -->
+      <section id="sec-enforcement" data-section-group="enforcement" class="policy-section scroll-mt-36 space-y-5">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">SECTION 01 · ENFORCEMENT & FOLLOW-UP</span>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
+              1. 밤샘주차 단속 프로그램 구축 및 적발 차량 사후 관리
+            </h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300">
+            3단계 사후 관리 프로세스
+          </span>
+        </div>
+
+        <!-- 3단계 프로세스 벤토 그리드 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <!-- 가 -->
+          <article
+            data-searchable
+            data-category="enforcement"
+            data-keywords="가 단속 관리 프로그램 구축 차량별 누적 단속 건수 데이터화 중점 관리 대상 선별 밤샘주차"
+            class="bento-item bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-200/70 dark:border-slate-800 shadow-bento hover:shadow-bento-hover transition-all duration-300 flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 text-xs font-extrabold">
+                  STEP 1 · 가
+                </span>
+                <span class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" /></svg>
+                </span>
+              </div>
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white mb-2.5 leading-snug">
+                단속 데이터화 및 중점 관리 대상 선별
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                단속 관리 프로그램을 구축하여 차량별 누적 단속 건수를 데이터화하고 중점 관리 대상을 선별
+              </p>
+            </div>
+            <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">누적 건수 데이터화</span>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">중점 관리 선별</span>
+            </div>
+          </article>
+
+          <!-- 나 -->
+          <article
+            data-searchable
+            data-category="enforcement"
+            data-keywords="나 적발 차주 대상 차고지 실제 이용 여부 소명 안내문 발송 주차료 납부 내역 입출차 기록 증빙자료 요구"
+            class="bento-item bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-200/70 dark:border-slate-800 shadow-bento hover:shadow-bento-hover transition-all duration-300 flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold">
+                  STEP 2 · 나
+                </span>
+                <span class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                </span>
+              </div>
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white mb-2.5 leading-snug">
+                소명 안내문 발송 및 증빙자료 요구
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                적발 차주 대상 「차고지 실제 이용 여부 소명 안내문」을 발송하여 주차료 납부 내역, 입·출차 기록 등 증빙자료 요구
+              </p>
+            </div>
+            <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300">주차료 납부 내역</span>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300">입·출차 기록</span>
+            </div>
+          </article>
+
+          <!-- 다 -->
+          <article
+            data-searchable
+            data-category="enforcement"
+            data-keywords="다 기한 내 미소명 허위 등록 확인 화물자동차 운수사업법 제19조 허가기준 미충족 행정처분 진행"
+            class="bento-item bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-rose-200/80 dark:border-rose-500/30 shadow-bento hover:shadow-bento-hover transition-all duration-300 flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 text-xs font-extrabold">
+                  STEP 3 · 다
+                </span>
+                <span class="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                </span>
+              </div>
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white mb-2.5 leading-snug">
+                미소명·허위 등록 시 행정처분 진행
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                기한 내 미소명 및 허위 등록 확인 시, <strong class="text-rose-600 dark:text-rose-400 font-bold">「화물자동차 운수사업법」 제19조(허가기준 미충족)</strong>에 따른 행정처분 진행
+              </p>
+            </div>
+            <div class="mt-5 pt-4 border-t border-rose-100 dark:border-rose-900/40 flex flex-wrap gap-1.5">
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300">화물자동차 운수사업법 제19조</span>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300">허가기준 미충족</span>
+            </div>
+          </article>
+        </div>
+
+        <!-- [실무 도구 1 - 벤토 카드 내장] 소명 안내문 초안 생성·복사기 -->
+        <div
+          id="tool-notice"
+          data-searchable
+          data-category="tools enforcement"
+          data-keywords="실무 도구 소명 안내문 초안 생성 복사기 차량번호 차주명 누적 단속 건수 소명 기한 제19조 주차료 입출차"
+          class="bento-item scroll-mt-36 bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/70 dark:border-slate-800 shadow-bento"
+        >
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-5 border-b border-slate-100 dark:border-slate-800">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 text-[11px] font-extrabold mb-2">
+                실무 도구 01 · 자동 생성기
+              </div>
+              <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">
+                「차고지 실제 이용 여부 소명 안내문」 초안 생성·복사기
+              </h3>
+            </div>
+            <button
+              id="btnResetNotice"
+              type="button"
+              class="self-start sm:self-center px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+            >
+              입력 초기화
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- 입력 영역 -->
+            <div class="lg:col-span-5 space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="inputVehicleNo" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">차량번호</label>
+                  <input
+                    id="inputVehicleNo"
+                    type="text"
+                    value="경기80바1234"
+                    placeholder="예: 경기80바1234"
+                    class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition"
+                  />
+                </div>
+                <div>
+                  <label for="inputOwnerName" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">차주명</label>
+                  <input
+                    id="inputOwnerName"
+                    type="text"
+                    value="홍길동"
+                    placeholder="예: 홍길동"
+                    class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition"
+                  />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="inputViolationCount" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">누적 단속 건수 (회)</label>
+                  <input
+                    id="inputViolationCount"
+                    type="number"
+                    min="1"
+                    max="99"
+                    value="3"
+                    class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition"
+                  />
+                </div>
+                <div>
+                  <label for="inputDeadline" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">소명 기한</label>
+                  <input
+                    id="inputDeadline"
+                    type="date"
+                    class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition"
+                  />
+                </div>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <strong class="text-slate-800 dark:text-slate-200">실무 안내:</strong> 입력값이 우측 안내문 초안에 실시간 반영됩니다. 생성된 문구는 필요에 따라 직접 수정한 뒤 복사하실 수 있습니다.
+              </div>
+            </div>
+
+            <!-- 실시간 미리보기 & 복사 -->
+            <div class="lg:col-span-7 flex flex-col">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-bold text-slate-600 dark:text-slate-400">안내문 초안 실시간 미리보기</span>
+                <span class="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">● 자동 동기화됨</span>
+              </div>
+              <textarea
+                id="noticePreview"
+                rows="10"
+                class="w-full flex-1 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/90 dark:bg-slate-950/70 text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/40 resize-y"
+              ></textarea>
+              <div class="mt-4 flex justify-end">
+                <button
+                  id="btnCopyNotice"
+                  type="button"
+                  class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white text-sm font-bold shadow-sm transition-all"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                  <span>소명 안내문 초안 복사</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 섹션 2: 2. 민영·공동주차장 현장 점검 및 수용 한도 관리 ==================== -->
+      <section id="sec-capacity" data-section-group="capacity" class="policy-section scroll-mt-36 space-y-5">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">SECTION 02 · CAPACITY MANAGEMENT</span>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
+              2. 민영·공동주차장 현장 점검 및 수용 한도 관리
+            </h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+            3대 대조 지표 · 초과 시 반려
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <!-- 좌측: 원문 기준 벤토 카드 (가, 나) -->
+          <div class="lg:col-span-5 flex flex-col gap-5">
+            <!-- 가 -->
+            <article
+              data-searchable
+              data-category="capacity"
+              data-keywords="가 주차장 관리인 소유주 전체 주차면수 화물차 주차 가능 면수 기체결된 차고지 계약 대수 대조 확인 현장 점검"
+              class="bento-item flex-1 bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-200/70 dark:border-slate-800 shadow-bento"
+            >
+              <span class="inline-flex items-center px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold mb-4">
+                항목 가 · 3대 대조 확인
+              </span>
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white mb-2.5">
+                주차장 관리인(소유주) 현장 대조 확인
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+                주차장 관리인(소유주)을 통해 아래 3가지 현황을 대조 확인합니다.
+              </p>
+              <div class="space-y-2.5">
+                <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/60 dark:border-slate-700/60">
+                  <span class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-extrabold flex items-center justify-center shrink-0">①</span>
+                  <span class="text-sm font-bold text-slate-800 dark:text-slate-100">전체 주차면수</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 rounded-2xl bg-indigo-50/70 dark:bg-indigo-500/10 border border-indigo-200/60 dark:border-indigo-500/20">
+                  <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs font-extrabold flex items-center justify-center shrink-0">②</span>
+                  <span class="text-sm font-bold text-indigo-950 dark:text-indigo-200">화물차 주차 가능 면수</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 rounded-2xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200/60 dark:border-emerald-500/20">
+                  <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-extrabold flex items-center justify-center shrink-0">③</span>
+                  <span class="text-sm font-bold text-emerald-950 dark:text-emerald-200">기 체결된 차고지 계약 대수</span>
+                </div>
+              </div>
+            </article>
+
+            <!-- 나 -->
+            <article
+              data-searchable
+              data-category="capacity"
+              data-keywords="나 화물차 수용 가능 면수 대비 계약 대수 초과 주차장 신규 차고지 설치 확인 신청 접수 제한 반려"
+              class="bento-item bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-rose-200/80 dark:border-rose-500/30 shadow-bento"
+            >
+              <span class="inline-flex items-center px-3 py-1 rounded-xl bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 text-xs font-extrabold mb-4">
+                항목 나 · 수용 한도 초과 조치
+              </span>
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white mb-2.5">
+                신규 차고지 설치 확인 신청 접수 제한(반려)
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                화물차 수용 가능 면수 대비 계약 대수가 초과된 주차장은 <strong class="text-rose-600 dark:text-rose-400 font-bold">신규 차고지 설치 확인 신청 접수 제한(반려)</strong>
+              </p>
+            </article>
+          </div>
+
+          <!-- 우측: [실무 도구 2 - 벤토 카드 내장] 민영·공동주차장 수용 한도 판정 시뮬레이터 -->
+          <div
+            id="tool-simulator"
+            data-searchable
+            data-category="tools capacity"
+            data-keywords="실무 도구 시뮬레이터 민영 공동주차장 수용 한도 판정 여유 임계 초과 반려 게이지 바 현장 점검 메모 복사"
+            class="bento-item lg:col-span-7 bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/70 dark:border-slate-800 shadow-bento flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex flex-wrap items-start justify-between gap-3 mb-6 pb-5 border-b border-slate-100 dark:border-slate-800">
+                <div>
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-extrabold mb-2">
+                    실무 도구 02 · 인터랙티브 시뮬레이터
+                  </span>
+                  <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">
+                    민영·공동주차장 수용 한도 판정 시뮬레이터
+                  </h3>
+                </div>
+                <!-- 프리셋 버튼 (여유 / 임계 / 초과 반려) -->
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <button id="btnPresetRelaxed" type="button" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:text-emerald-300 dark:hover:bg-emerald-500/25 transition">
+                    여유
+                  </button>
+                  <button id="btnPresetCritical" type="button" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-500/15 dark:text-indigo-300 dark:hover:bg-indigo-500/25 transition">
+                    임계 (100%)
+                  </button>
+                  <button id="btnPresetRejected" type="button" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-500/15 dark:text-rose-300 dark:hover:bg-rose-500/25 transition">
+                    초과 반려
+                  </button>
+                </div>
+              </div>
+
+              <!-- 슬라이더 및 숫자 입력 -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <!-- ① 전체 주차면수 -->
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
+                  <div class="flex items-center justify-between mb-2">
+                    <label for="numTotalSpaces" class="text-xs font-bold text-slate-700 dark:text-slate-300">① 전체 주차면수</label>
+                    <div class="flex items-center gap-1">
+                      <input id="numTotalSpaces" type="number" min="1" max="500" value="100" class="w-16 px-2 py-1 text-right rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-extrabold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                      <span class="text-xs text-slate-500">면</span>
+                    </div>
+                  </div>
+                  <input id="rangeTotalSpaces" type="range" min="1" max="500" value="100" class="w-full" />
+                </div>
+
+                <!-- ② 화물차 주차 가능 면수 -->
+                <div class="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-500/10 border border-indigo-200/60 dark:border-indigo-500/20">
+                  <div class="flex items-center justify-between mb-2">
+                    <label for="numTruckSpaces" class="text-xs font-bold text-indigo-900 dark:text-indigo-200">② 화물차 가능 면수</label>
+                    <div class="flex items-center gap-1">
+                      <input id="numTruckSpaces" type="number" min="0" max="500" value="40" class="w-16 px-2 py-1 text-right rounded-lg border border-indigo-200 dark:border-indigo-500/40 bg-white dark:bg-slate-900 text-sm font-extrabold text-indigo-700 dark:text-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                      <span class="text-xs text-slate-500">면</span>
+                    </div>
+                  </div>
+                  <input id="rangeTruckSpaces" type="range" min="0" max="500" value="40" class="w-full" />
+                  <p id="warnTruckExceedTotal" class="hidden text-[11px] font-semibold text-rose-600 dark:text-rose-400 mt-1.5">
+                    ※ 전체 주차면수를 초과할 수 없어 자동 조정되었습니다.
+                  </p>
+                </div>
+
+                <!-- ③ 기체결 계약 대수 -->
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
+                  <div class="flex items-center justify-between mb-2">
+                    <label for="numExistingContracts" class="text-xs font-bold text-slate-700 dark:text-slate-300">③ 기체결 계약 대수</label>
+                    <div class="flex items-center gap-1">
+                      <input id="numExistingContracts" type="number" min="0" max="500" value="36" class="w-16 px-2 py-1 text-right rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-extrabold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                      <span class="text-xs text-slate-500">대</span>
+                    </div>
+                  </div>
+                  <input id="rangeExistingContracts" type="range" min="0" max="500" value="36" class="w-full" />
+                </div>
+
+                <!-- ④ 신규 신청 대수 -->
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
+                  <div class="flex items-center justify-between mb-2">
+                    <label for="numNewRequests" class="text-xs font-bold text-slate-700 dark:text-slate-300">④ 신규 신청 대수</label>
+                    <div class="flex items-center gap-1">
+                      <input id="numNewRequests" type="number" min="0" max="100" value="7" class="w-16 px-2 py-1 text-right rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-extrabold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                      <span class="text-xs text-slate-500">대</span>
+                    </div>
+                  </div>
+                  <input id="rangeNewRequests" type="range" min="0" max="100" value="7" class="w-full" />
+                </div>
+              </div>
+            </div>
+
+            <!-- 실시간 판정 결과 박스 -->
+            <div id="simResultBox" class="rounded-2xl p-5 border-2 transition-all duration-300">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div>
+                  <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">실시간 판정 결과</span>
+                  <div class="flex items-center gap-2.5 mt-1">
+                    <span id="simBadge" class="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-extrabold">
+                      접수 제한(반려)
+                    </span>
+                    <span id="simRateText" class="text-2xl font-black tabular-nums">107.5%</span>
+                  </div>
+                </div>
+                <div class="sm:text-right">
+                  <div class="text-xs text-slate-500 dark:text-slate-400">총 계약 예정 / 화물차 가능</div>
+                  <div id="simRatioDetail" class="text-base font-extrabold text-slate-900 dark:text-white tabular-nums mt-0.5">43대 / 40면</div>
+                </div>
+              </div>
+
+              <!-- 수용률 게이지 바 -->
+              <div class="mb-3">
+                <div class="w-full h-3 bg-slate-200/80 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div id="simGaugeBar" class="h-full rounded-full transition-all duration-300" style="width: 100%"></div>
+                </div>
+                <div class="flex justify-between text-[11px] font-semibold text-slate-400 dark:text-slate-500 mt-1.5">
+                  <span>0%</span>
+                  <span>50%</span>
+                  <span>100% 한도</span>
+                </div>
+              </div>
+
+              <p id="simReasonText" class="text-xs sm:text-sm font-medium leading-relaxed"></p>
+
+              <div class="mt-4 pt-4 border-t border-slate-200/60 dark:border-slate-700/60 flex justify-end">
+                <button
+                  id="btnCopySimMemo"
+                  type="button"
+                  class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 active:scale-[0.98] text-white text-xs sm:text-sm font-bold shadow-sm transition-all"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                  <span>현장 점검 메모 복사</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 섹션 3: 3. 차고지 실태 점검 및 사후 관리 강화 시 예상 문제점 ==================== -->
+      <section id="sec-issues" data-section-group="issues" class="policy-section scroll-mt-36 space-y-5">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <span class="text-xs font-extrabold uppercase tracking-wider text-rose-600 dark:text-rose-400">SECTION 03 · RISK ANALYSIS</span>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
+              3. 차고지 실태 점검 및 사후 관리 강화 시 예상 문제점
+            </h2>
+          </div>
+
+          <!-- 뷰 전환 + 보고용 요약 복사 -->
+          <div class="flex flex-wrap items-center gap-2.5">
+            <div class="inline-flex rounded-2xl bg-slate-200/70 dark:bg-slate-800 p-1">
+              <button id="btnViewCard" type="button" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition">
+                벤토 카드 뷰
+              </button>
+              <button id="btnViewTable" type="button" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
+                한눈에 비교표
+              </button>
+            </div>
+
+            <button
+              id="btnCopyIssues"
+              type="button"
+              class="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white text-xs font-bold shadow-sm transition-all"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+              <span>4대 문제점 보고용 요약 복사</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4대 리스크 벤토 카드 뷰 -->
+        <div id="issuesCardView" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- 가 -->
+          <article
+            data-searchable
+            data-category="issues"
+            data-keywords="가 관외 차고지 이탈 풍선효과 점검 한계 인근 타 시군 서류상 등록 회피 직접 현장 점검 불가능 도심 내 밤샘주차 해소 효과 반감"
+            class="bento-item bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-200/70 dark:border-slate-800 shadow-bento hover:shadow-bento-hover hover:border-rose-300 dark:hover:border-rose-500/40 transition-all duration-300 flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-4">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 text-xs font-extrabold">
+                  문제점 가 · 풍선효과
+                </span>
+                <span class="text-xs font-bold text-slate-400">RISK 01</span>
+              </div>
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white mb-2.5">
+                관외 차고지 이탈(풍선효과) 및 점검 한계
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                관내 관리 강화 시 규제가 느슨한 인근 타 시·군(관외) 차고지로 서류상 등록을 회피하는 <strong class="text-rose-600 dark:text-rose-400 font-bold">풍선효과</strong> 발생 우려가 있으며, 관외 지역은 우리 시의 직접적인 현장 점검이 불가능하므로 <strong class="text-slate-900 dark:text-white font-bold">실질적인 도심 내 밤샘주차 해소 효과 반감</strong>
+              </p>
+            </div>
+            <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300">#서류상 등록 회피</span>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">#관외 점검 불가</span>
+            </div>
+          </article>
+
+          <!-- 나 -->
+          <article
+            data-searchable
+            data-category="issues"
+            data-keywords="나 차고지 인프라 부족 역민원 발생 주거지 인근 민간 차고지 부족 단속 처분 강화 차주 생계형 반발"
+            class="bento-item bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-200/70 dark:border-slate-800 shadow-bento hover:shadow-bento-hover hover:border-rose-300 dark:hover:border-rose-500/40 transition-all duration-300 flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-4">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 text-xs font-extrabold">
+                  문제점 나 · 역민원
+                </span>
+                <span class="text-xs font-bold text-slate-400">RISK 02</span>
+              </div>
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white mb-2.5">
+                차고지 인프라 부족에 따른 역민원 발생
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                주거지 인근 민간 차고지가 부족한 상태에서 단속·처분만 강화할 경우, <strong class="text-rose-600 dark:text-rose-400 font-bold">차주들의 생계형 반발 등 역민원 제기 우려</strong>
+              </p>
+            </div>
+            <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300">#민간 차고지 부족</span>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">#생계형 반발</span>
+            </div>
+          </article>
+
+          <!-- 다 -->
+          <article
+            data-searchable
+            data-category="issues"
+            data-keywords="다 타 지자체 행정 형평성 논란 인근 시군 화성 파주 오산 연천 포천 공동차고지 현장 확인 생략 처분 실적 전무 형평성 민원 불복 절차 증가"
+            class="bento-item bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-200/70 dark:border-slate-800 shadow-bento hover:shadow-bento-hover hover:border-rose-300 dark:hover:border-rose-500/40 transition-all duration-300 flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-4">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 text-xs font-extrabold">
+                  문제점 다 · 형평성 논란
+                </span>
+                <span class="text-xs font-bold text-slate-400">RISK 03</span>
+              </div>
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white mb-2.5">
+                타 지자체와의 행정 형평성 논란
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                인근 시·군(<strong class="text-slate-900 dark:text-white font-bold">화성·파주·오산·연천·포천 등</strong>)은 공동차고지 현장 확인을 생략하고 처분 실적이 전무한 실정으로, 우리 시만 엄격히 적용 시 <strong class="text-rose-600 dark:text-rose-400 font-bold">형평성 민원 및 불복 절차 증가 우려</strong>
+              </p>
+            </div>
+            <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300">#화성·파주·오산·연천·포천</span>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">#처분 실적 전무</span>
+            </div>
+          </article>
+
+          <!-- 라 -->
+          <article
+            data-searchable
+            data-category="issues"
+            data-keywords="라 민원 처리 지연 담당자 업무 과부하 타 업무 다수 병행 설치 확인 신청 현장 출장 소명 처분 절차 전담 기존 민원 지연 업무 부담 급증"
+            class="bento-item bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-200/70 dark:border-slate-800 shadow-bento hover:shadow-bento-hover hover:border-rose-300 dark:hover:border-rose-500/40 transition-all duration-300 flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-4">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 text-xs font-extrabold">
+                  문제점 라 · 업무 과부하
+                </span>
+                <span class="text-xs font-bold text-slate-400">RISK 04</span>
+              </div>
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white mb-2.5">
+                민원 처리 지연 및 담당자 업무 과부하
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                현재 차고지 담당자가 타 업무를 다수 병행하고 있어, 설치 확인 신청 시마다 현장 출장 및 소명·처분 절차를 전담할 경우 <strong class="text-rose-600 dark:text-rose-400 font-bold">기존 민원 지연과 업무 부담 급증</strong>
+              </p>
+            </div>
+            <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300">#타 업무 다수 병행</span>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">#기존 민원 지연</span>
+            </div>
+          </article>
+        </div>
+
+        <!-- 한눈에 비교표 뷰 (초기 숨김) -->
+        <div id="issuesTableView" class="hidden bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/70 dark:border-slate-800 shadow-bento overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-100/80 dark:bg-slate-800/80 text-xs font-extrabold text-slate-700 dark:text-slate-200 border-b border-slate-200/70 dark:border-slate-700">
+                  <th class="py-4 px-5 w-20">구분</th>
+                  <th class="py-4 px-5 min-w-[200px]">예상 문제점</th>
+                  <th class="py-4 px-5 min-w-[280px]">발생 원인 및 현황</th>
+                  <th class="py-4 px-5 min-w-[220px]">우려되는 파급 효과</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs sm:text-sm">
+                <tr class="issue-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors" data-keywords="가 관외 차고지 이탈 풍선효과 점검 한계 인근 타 시군 서류상 등록 회피 밤샘주차 해소 효과 반감">
+                  <td class="py-4 px-5 font-extrabold text-rose-600 dark:text-rose-400">가</td>
+                  <td class="py-4 px-5 font-bold text-slate-900 dark:text-white">관외 차고지 이탈(풍선효과) 및 점검 한계</td>
+                  <td class="py-4 px-5 text-slate-600 dark:text-slate-300">규제가 느슨한 인근 타 시·군(관외) 차고지로 서류상 등록 회피 및 관외 직접 현장 점검 불가</td>
+                  <td class="py-4 px-5 font-semibold text-rose-700 dark:text-rose-300">실질적인 도심 내 밤샘주차 해소 효과 반감</td>
+                </tr>
+                <tr class="issue-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors" data-keywords="나 차고지 인프라 부족 역민원 주거지 인근 민간 차고지 단속 처분 생계형 반발">
+                  <td class="py-4 px-5 font-extrabold text-rose-600 dark:text-rose-400">나</td>
+                  <td class="py-4 px-5 font-bold text-slate-900 dark:text-white">차고지 인프라 부족에 따른 역민원 발생</td>
+                  <td class="py-4 px-5 text-slate-600 dark:text-slate-300">주거지 인근 민간 차고지가 부족한 상태에서 단속·처분만 강화</td>
+                  <td class="py-4 px-5 font-semibold text-rose-700 dark:text-rose-300">차주들의 생계형 반발 등 역민원 제기 우려</td>
+                </tr>
+                <tr class="issue-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors" data-keywords="다 타 지자체 행정 형평성 논란 화성 파주 오산 연천 포천 공동차고지 현장 확인 생략 처분 실적 전무 불복 절차">
+                  <td class="py-4 px-5 font-extrabold text-rose-600 dark:text-rose-400">다</td>
+                  <td class="py-4 px-5 font-bold text-slate-900 dark:text-white">타 지자체와의 행정 형평성 논란</td>
+                  <td class="py-4 px-5 text-slate-600 dark:text-slate-300">인근 시·군(화성·파주·오산·연천·포천 등)은 공동차고지 현장 확인 생략 및 처분 실적 전무</td>
+                  <td class="py-4 px-5 font-semibold text-rose-700 dark:text-rose-300">우리 시만 엄격 적용 시 형평성 민원 및 불복 절차 증가</td>
+                </tr>
+                <tr class="issue-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors" data-keywords="라 민원 처리 지연 담당자 업무 과부하 타 업무 다수 병행 현장 출장 소명 처분 전담 업무 부담 급증">
+                  <td class="py-4 px-5 font-extrabold text-rose-600 dark:text-rose-400">라</td>
+                  <td class="py-4 px-5 font-bold text-slate-900 dark:text-white">민원 처리 지연 및 담당자 업무 과부하</td>
+                  <td class="py-4 px-5 text-slate-600 dark:text-slate-300">차고지 담당자가 타 업무를 다수 병행하며 신청 시마다 현장 출장 및 소명·처분 절차 전담</td>
+                  <td class="py-4 px-5 font-semibold text-rose-700 dark:text-rose-300">기존 민원 지연과 업무 부담 급증</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="mt-10 border-t border-slate-200/70 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 py-5 px-4 sm:px-6 lg:px-10">
+      <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+        <span>원문 문서: 「차고지 실제 이용 여부 확인 및 관리 방안」</span>
+        <span>관련 법령: 「화물자동차 운수사업법」 제19조(허가기준 미충족)</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ==================== 4. 플로팅 탑(Top) 버튼 + 원형 스크롤 진행률 링 ==================== -->
+  <button
+    id="btnFloatingTop"
+    type="button"
+    aria-label="페이지 최상단으로 이동"
+    class="fixed bottom-6 right-6 z-40 w-13 h-13 p-0 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-indigo-600 dark:text-indigo-400 shadow-lg hover:shadow-xl border border-slate-200/70 dark:border-slate-800 flex items-center justify-center opacity-0 scale-75 pointer-events-none transition-all duration-300 ease-out hover:-translate-y-0.5 active:scale-95"
+    style="width: 54px; height: 54px;"
+  >
+    <!-- 원형 SVG 스크롤 진행률(Progress) 링 -->
+    <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 54 54" aria-hidden="true">
+      <defs>
+        <linearGradient id="topRingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4f46e5" />
+          <stop offset="100%" stop-color="#10b981" />
+        </linearGradient>
+      </defs>
+      <!-- 배경 트랙 -->
+      <circle
+        cx="27"
+        cy="27"
+        r="24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        class="text-slate-200/70 dark:text-slate-800"
+      />
+      <!-- 진행률 링 (둘레: 2 * PI * 24 ≈ 150.796) -->
+      <circle
+        id="topProgressRing"
+        cx="27"
+        cy="27"
+        r="24"
+        fill="none"
+        stroke="url(#topRingGradient)"
+        stroke-width="3"
+        stroke-linecap="round"
+        stroke-dasharray="150.796"
+        stroke-dashoffset="150.796"
+      />
+    </svg>
+    <!-- 위쪽 화살표 아이콘 -->
+    <svg class="relative z-10 w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+    </svg>
+  </button>
+
+  <!-- ==================== 5. 클립보드 복사 토스트 알림 ==================== -->
+  <div
+    id="toastContainer"
+    role="status"
+    aria-live="polite"
+    class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-4 transition-all duration-300"
+  >
+    <div class="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-slate-900 dark:bg-slate-800 text-white shadow-xl border border-emerald-500/40 text-xs sm:text-sm font-semibold whitespace-nowrap">
+      <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+      </span>
+      <span id="toastMessage">클립보드에 복사되었습니다.</span>
+    </div>
+  </div>
+
+  <!-- ==================== 6. Vanilla JavaScript 로직 ==================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ---------------------------------------------------------
+       * A. 클립보드 복사 & 세련된 슬레이트/에메랄드 토스트 알림
+       * --------------------------------------------------------- */
+      let toastTimer = null;
+
+      function showToast(message) {
+        const container = document.getElementById('toastContainer');
+        const msgEl = document.getElementById('toastMessage');
+        if (!container || !msgEl) return;
+
+        msgEl.textContent = message;
+        container.classList.remove('opacity-0', 'translate-y-4');
+        container.classList.add('opacity-100', 'translate-y-0');
+
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          container.classList.remove('opacity-100', 'translate-y-0');
+          container.classList.add('opacity-0', 'translate-y-4');
+        }, 2600);
+      }
+
+      /**
+       * iFrame 환경을 포함한 모든 브라우저에서 안전하게 텍스트 복사
+       */
+      function copyToClipboard(text, successMsg) {
+        try {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.top = '-9999px';
+          textarea.style.left = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          textarea.setSelectionRange(0, textarea.value.length);
+
+          const ok = document.execCommand('copy');
+          document.body.removeChild(textarea);
+
+          if (ok) {
+            showToast(successMsg || '클립보드에 복사되었습니다.');
+          } else if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text)
+              .then(() => showToast(successMsg || '클립보드에 복사되었습니다.'))
+              .catch(() => showToast('복사에 실패했습니다. 직접 선택해 복사해 주세요.'));
+          } else {
+            showToast('복사에 실패했습니다. 직접 선택해 복사해 주세요.');
+          }
+        } catch (err) {
+          console.error('Copy error:', err);
+          showToast('복사 중 오류가 발생했습니다.');
+        }
+      }
+
+      /* ---------------------------------------------------------
+       * B. 다크 모드 토글 (localStorage + 시스템 설정 연동)
+       * --------------------------------------------------------- */
+      const themeToggleBtns = document.querySelectorAll('[data-theme-toggle]');
+
+      function applyTheme(isDark) {
+        document.documentElement.classList.toggle('dark', isDark);
+
+        themeToggleBtns.forEach((btn) => {
+          btn.setAttribute('aria-checked', isDark ? 'true' : 'false');
+          const sun = btn.querySelector('.icon-sun');
+          const moon = btn.querySelector('.icon-moon');
+          const label = btn.querySelector('.theme-label');
+          if (sun && moon) {
+            sun.classList.toggle('hidden', !isDark);
+            moon.classList.toggle('hidden', isDark);
+          }
+          if (label) {
+            label.textContent = isDark ? '라이트 모드' : '다크 모드';
+          }
+        });
+      }
+
+      try {
+        const saved = localStorage.getItem('intelligence_slate_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(saved ? saved === 'dark' : prefersDark);
+      } catch (e) {
+        applyTheme(false);
+      }
+
+      themeToggleBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const nextDark = !document.documentElement.classList.contains('dark');
+          applyTheme(nextDark);
+          try {
+            localStorage.setItem('intelligence_slate_theme', nextDark ? 'dark' : 'light');
+          } catch (e) {}
+        });
+      });
+
+      /* ---------------------------------------------------------
+       * C. 모바일 햄버거 메뉴 드로어 (슬라이드 & 페이드 인)
+       * --------------------------------------------------------- */
+      const btnOpenMobileMenu = document.getElementById('btnOpenMobileMenu');
+      const btnCloseMobileMenu = document.getElementById('btnCloseMobileMenu');
+      const mobileDrawerWrapper = document.getElementById('mobileDrawerWrapper');
+      const mobileDrawer = document.getElementById('mobileDrawer');
+      const mobileDrawerBackdrop = document.getElementById('mobileDrawerBackdrop');
+
+      function openMobileDrawer() {
+        mobileDrawerWrapper.classList.remove('pointer-events-none', 'opacity-0');
+        mobileDrawerWrapper.classList.add('opacity-100');
+        mobileDrawerWrapper.setAttribute('aria-hidden', 'false');
+        mobileDrawer.classList.remove('-translate-x-full');
+        mobileDrawer.classList.add('translate-x-0');
+        btnOpenMobileMenu.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeMobileDrawer() {
+        mobileDrawerWrapper.classList.add('opacity-0', 'pointer-events-none');
+        mobileDrawerWrapper.classList.remove('opacity-100');
+        mobileDrawerWrapper.setAttribute('aria-hidden', 'true');
+        mobileDrawer.classList.add('-translate-x-full');
+        mobileDrawer.classList.remove('translate-x-0');
+        btnOpenMobileMenu.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      }
+
+      btnOpenMobileMenu.addEventListener('click', openMobileDrawer);
+      btnCloseMobileMenu.addEventListener('click', closeMobileDrawer);
+      mobileDrawerBackdrop.addEventListener('click', closeMobileDrawer);
+
+      /* ---------------------------------------------------------
+       * D. 사이드바 활성 섹션 자동 감지 (IntersectionObserver)
+       * --------------------------------------------------------- */
+      const navLinks = document.querySelectorAll('.sidebar-nav-link');
+      const observedTargets = [
+        document.getElementById('sec-overview'),
+        document.getElementById('sec-enforcement'),
+        document.getElementById('sec-capacity'),
+        document.getElementById('sec-issues'),
+        document.getElementById('tool-notice')
+      ].filter(Boolean);
+
+      function setActiveNav(targetId) {
+        navLinks.forEach((link) => {
+          const isActive = link.dataset.navTarget === targetId;
+          const dot = link.querySelector('.nav-dot');
+
+          if (isActive) {
+            link.classList.add('bg-indigo-50', 'text-indigo-700', 'dark:bg-indigo-500/15', 'dark:text-indigo-300');
+            link.classList.remove('text-slate-600', 'dark:text-slate-400', 'hover:bg-slate-100', 'dark:hover:bg-slate-800/70');
+            if (dot) {
+              dot.classList.add('bg-indigo-600', 'dark:bg-indigo-400', 'scale-125');
+              dot.classList.remove('bg-slate-300', 'dark:bg-slate-700');
+            }
+          } else {
+            link.classList.remove('bg-indigo-50', 'text-indigo-700', 'dark:bg-indigo-500/15', 'dark:text-indigo-300');
+            link.classList.add('text-slate-600', 'dark:text-slate-400', 'hover:bg-slate-100', 'dark:hover:bg-slate-800/70');
+            if (dot && !link.dataset.navTool) {
+              dot.classList.remove('bg-indigo-600', 'dark:bg-indigo-400', 'scale-125');
+              dot.classList.add('bg-slate-300', 'dark:bg-slate-700');
+            }
+          }
+        });
+      }
+
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                setActiveNav(entry.target.id);
+              }
+            });
+          },
+          { rootMargin: '-20% 0px -65% 0px', threshold: 0.05 }
+        );
+        observedTargets.forEach((el) => observer.observe(el));
+      }
+      setActiveNav('sec-overview');
+
+      // 메뉴 클릭 시: 필터가 숨기고 있다면 전체로 초기화 후 이동 + 모바일 드로어 자동 닫힘
+      navLinks.forEach((link) => {
+        link.addEventListener('click', (e) => {
+          const targetId = link.dataset.navTarget;
+          if (currentCategory !== 'all' || searchInput.value.trim() !== '') {
+            currentCategory = 'all';
+            searchInput.value = '';
+            applyFiltersAndSearch();
+          }
+          setActiveNav(targetId);
+          closeMobileDrawer();
+        });
+      });
+
+      /* ---------------------------------------------------------
+       * E. 실시간 통합 검색 & 카테고리 필터링
+       * --------------------------------------------------------- */
+      const searchInput = document.getElementById('globalSearchInput');
+      const btnClearSearch = document.getElementById('btnClearSearch');
+      const matchCountBadge = document.getElementById('matchCountBadge');
+      const filterChips = document.querySelectorAll('.filter-chip');
+      const searchableItems = document.querySelectorAll('[data-searchable]');
+      const policySections = document.querySelectorAll('.policy-section');
+      const emptySearchState = document.getElementById('emptySearchState');
+      const emptyQueryText = document.getElementById('emptyQueryText');
+      const btnResetAllFilters = document.getElementById('btnResetAllFilters');
+      const issueTableRows = document.querySelectorAll('.issue-table-row');
+
+      let currentCategory = 'all';
+
+      function updateChipStyles() {
+        filterChips.forEach((chip) => {
+          const active = chip.dataset.filterChip === currentCategory;
+          if (active) {
+            chip.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+            chip.classList.remove('bg-slate-100', 'text-slate-600', 'dark:bg-slate-800', 'dark:text-slate-300', 'hover:bg-slate-200', 'dark:hover:bg-slate-700');
+          } else {
+            chip.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm');
+            chip.classList.add('bg-slate-100', 'text-slate-600', 'dark:bg-slate-800', 'dark:text-slate-300', 'hover:bg-slate-200', 'dark:hover:bg-slate-700');
+          }
+        });
+      }
+
+      function applyFiltersAndSearch() {
+        const query = searchInput.value.trim().toLowerCase();
+        btnClearSearch.classList.toggle('hidden', query.length === 0);
+
+        let visibleCount = 0;
+
+        searchableItems.forEach((item) => {
+          const categories = (item.dataset.category || '').split(' ');
+          const textContent = (item.textContent + ' ' + (item.dataset.keywords || '')).toLowerCase();
+
+          const categoryMatch = currentCategory === 'all' || categories.includes(currentCategory);
+          const queryMatch = query === '' || textContent.includes(query);
+          const shouldShow = categoryMatch && queryMatch;
+
+          if (shouldShow) {
+            item.classList.remove('hidden');
+            // 부드러운 페이딩 애니메이션 재트리거
+            item.classList.remove('bento-animate');
+            void item.offsetWidth;
+            item.classList.add('bento-animate');
+            visibleCount++;
+          } else {
+            item.classList.add('hidden');
+          }
+        });
+
+        // 비교표 행도 검색어에 맞춰 필터링
+        issueTableRows.forEach((row) => {
+          const rowText = (row.textContent + ' ' + (row.dataset.keywords || '')).toLowerCase();
+          const rowMatch = query === '' || rowText.includes(query);
+          row.classList.toggle('hidden', !rowMatch);
+        });
+
+        // 섹션 내 표시되는 항목이 하나도 없으면 섹션 헤더 포함 숨김
+        policySections.forEach((section) => {
+          const visibleInside = section.querySelectorAll('[data-searchable]:not(.hidden)').length;
+          section.classList.toggle('hidden', visibleInside === 0);
+        });
+
+        // 일치 카드 수 배지 업데이트
+        if (currentCategory === 'all' && query === '') {
+          matchCountBadge.textContent = `전체 ${visibleCount}건`;
+        } else {
+          matchCountBadge.textContent = `일치 ${visibleCount}건`;
+        }
+
+        // Empty State 토글
+        if (visibleCount === 0) {
+          emptySearchState.classList.remove('hidden');
+          emptyQueryText.textContent = query || currentCategory;
+        } else {
+          emptySearchState.classList.add('hidden');
+        }
+
+        updateChipStyles();
+      }
+
+      searchInput.addEventListener('input', applyFiltersAndSearch);
+
+      btnClearSearch.addEventListener('click', () => {
+        searchInput.value = '';
+        searchInput.focus();
+        applyFiltersAndSearch();
+      });
+
+      filterChips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          currentCategory = chip.dataset.filterChip;
+          applyFiltersAndSearch();
+        });
+      });
+
+      btnResetAllFilters.addEventListener('click', () => {
+        currentCategory = 'all';
+        searchInput.value = '';
+        applyFiltersAndSearch();
+      });
+
+      // 초기 상태 렌더링
+      applyFiltersAndSearch();
+
+      /* ---------------------------------------------------------
+       * F. 플로팅 탑(Top) 버튼 + 원형 스크롤 진행률(Progress) 링
+       * --------------------------------------------------------- */
+      const btnFloatingTop = document.getElementById('btnFloatingTop');
+      const topProgressRing = document.getElementById('topProgressRing');
+      const RING_CIRCUMFERENCE = 2 * Math.PI * 24; // 150.796...
+
+      function updateFloatingTopButton() {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const progress = docHeight > 0 ? Math.min(1, Math.max(0, scrollTop / docHeight)) : 0;
+
+        // 원형 프로그레스 링 업데이트
+        const offset = RING_CIRCUMFERENCE * (1 - progress);
+        topProgressRing.style.strokeDashoffset = offset.toFixed(2);
+
+        // 250px 초과 시 페이드/스케일 표시
+        if (scrollTop > 250) {
+          btnFloatingTop.classList.remove('opacity-0', 'scale-75', 'pointer-events-none');
+          btnFloatingTop.classList.add('opacity-100', 'scale-100', 'pointer-events-auto');
+        } else {
+          btnFloatingTop.classList.add('opacity-0', 'scale-75', 'pointer-events-none');
+          btnFloatingTop.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto');
+        }
+      }
+
+      window.addEventListener('scroll', updateFloatingTopButton, { passive: true });
+      window.addEventListener('resize', updateFloatingTopButton, { passive: true });
+      updateFloatingTopButton();
+
+      btnFloatingTop.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      /* ---------------------------------------------------------
+       * G. 전체 핵심 요약 복사
+       * --------------------------------------------------------- */
+      const fullSummaryText = [
+        '[차고지 실제 이용 여부 확인 및 관리 방안 핵심 요약]',
+        '',
+        '1. 밤샘주차 단속 프로그램 구축 및 적발 차량 사후 관리',
+        '  가. 단속 관리 프로그램을 구축하여 차량별 누적 단속 건수를 데이터화하고 중점 관리 대상 선별',
+        '  나. 적발 차주 대상 「차고지 실제 이용 여부 소명 안내문」을 발송하여 주차료 납부 내역, 입·출차 기록 등 증빙자료 요구',
+        '  다. 기한 내 미소명 및 허위 등록 확인 시, 「화물자동차 운수사업법」 제19조(허가기준 미충족)에 따른 행정처분 진행',
+        '',
+        '2. 민영·공동주차장 현장 점검 및 수용 한도 관리',
+        '  가. 주차장 관리인(소유주)을 통해 ① 전체 주차면수, ② 화물차 주차 가능 면수, ③ 기 체결된 차고지 계약 대수 대조 확인',
+        '  나. 화물차 수용 가능 면수 대비 계약 대수가 초과된 주차장은 신규 차고지 설치 확인 신청 접수 제한(반려)',
+        '',
+        '3. 차고지 실태 점검 및 사후 관리 강화 시 예상 문제점',
+        '  가. 관외 차고지 이탈(풍선효과) 및 점검 한계: 관내 관리 강화 시 규제가 느슨한 인근 타 시·군(관외) 차고지로 서류상 등록을 회피하는 풍선효과 발생 우려가 있으며, 관외 지역은 우리 시의 직접적인 현장 점검이 불가능하므로 실질적인 도심 내 밤샘주차 해소 효과 반감',
+        '  나. 차고지 인프라 부족에 따른 역민원 발생: 주거지 인근 민간 차고지가 부족한 상태에서 단속·처분만 강화할 경우, 차주들의 생계형 반발 등 역민원 제기 우려',
+        '  다. 타 지자체와의 행정 형평성 논란: 인근 시·군(화성·파주·오산·연천·포천 등)은 공동차고지 현장 확인을 생략하고 처분 실적이 전무한 실정으로, 우리 시만 엄격히 적용 시 형평성 민원 및 불복 절차 증가 우려',
+        '  라. 민원 처리 지연 및 담당자 업무 과부하: 현재 차고지 담당자가 타 업무를 다수 병행하고 있어, 설치 확인 신청 시마다 현장 출장 및 소명·처분 절차를 전담할 경우 기존 민원 지연과 업무 부담 급증'
+      ].join('\n');
+
+      document.querySelectorAll('[data-copy-full-summary]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          copyToClipboard(fullSummaryText, '전체 핵심 요약이 클립보드에 복사되었습니다.');
+        });
+      });
+
+      /* ---------------------------------------------------------
+       * H. 실무 도구 1: 소명 안내문 초안 생성·복사기
+       * --------------------------------------------------------- */
+      const inputVehicleNo = document.getElementById('inputVehicleNo');
+      const inputOwnerName = document.getElementById('inputOwnerName');
+      const inputViolationCount = document.getElementById('inputViolationCount');
+      const inputDeadline = document.getElementById('inputDeadline');
+      const noticePreview = document.getElementById('noticePreview');
+      const btnCopyNotice = document.getElementById('btnCopyNotice');
+      const btnResetNotice = document.getElementById('btnResetNotice');
+
+      function getDefaultDeadline() {
+        const d = new Date();
+        d.setDate(d.getDate() + 14);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+      }
+
+      function formatDateKR(dateStr) {
+        if (!dateStr) return '0000년 00월 00일';
+        const parts = dateStr.split('-');
+        if (parts.length !== 3) return dateStr;
+        return `${parts[0]}년 ${parseInt(parts[1], 10)}월 ${parseInt(parts[2], 10)}일`;
+      }
+
+      function renderNoticeDraft() {
+        const vehicleNo = (inputVehicleNo.value || '').trim() || '(차량번호 미입력)';
+        const ownerName = (inputOwnerName.value || '').trim() || '(차주명 미입력)';
+        const count = Math.max(1, parseInt(inputViolationCount.value, 10) || 1);
+        const deadlineKR = formatDateKR(inputDeadline.value);
+
+        noticePreview.value = [
+          '「차고지 실제 이용 여부 소명 안내문」',
+          '',
+          `1. 수    신: ${ownerName} 귀하`,
+          `2. 대상차량: ${vehicleNo}`,
+          `3. 누적 단속 건수: 밤샘주차 ${count}회 적발 (중점 관리 대상)`,
+          '',
+          '귀하의 화물자동차는 밤샘주차 단속 내역이 누적 확인됨에 따라 신고된 차고지의 실제 이용 여부를 확인하고자 합니다.',
+          '',
+          '아래 소명 기한 내에 등록 차고지의 실제 이용 사실을 확인할 수 있는 증빙자료를 제출하여 주시기 바랍니다.',
+          '',
+          `■ 소명 기한: ${deadlineKR}까지`,
+          '■ 제출 증빙자료: 주차료 납부 내역, 입·출차 기록 등 차고지 실제 이용 증빙자료',
+          '',
+          '※ 유의 사항',
+          '기한 내 미소명 및 허위 등록이 확인될 경우, 「화물자동차 운수사업법」 제19조(허가기준 미충족)에 따른 행정처분이 진행됨을 안내드립니다.'
+        ].join('\n');
+      }
+
+      inputDeadline.value = getDefaultDeadline();
+      renderNoticeDraft();
+
+      [inputVehicleNo, inputOwnerName, inputViolationCount, inputDeadline].forEach((el) => {
+        el.addEventListener('input', renderNoticeDraft);
+      });
+
+      btnResetNotice.addEventListener('click', () => {
+        inputVehicleNo.value = '경기80바1234';
+        inputOwnerName.value = '홍길동';
+        inputViolationCount.value = '3';
+        inputDeadline.value = getDefaultDeadline();
+        renderNoticeDraft();
+        showToast('소명 안내문 입력값이 초기화되었습니다.');
+      });
+
+      btnCopyNotice.addEventListener('click', () => {
+        copyToClipboard(noticePreview.value, '소명 안내문 초안이 클립보드에 복사되었습니다.');
+      });
+
+      /* ---------------------------------------------------------
+       * I. 실무 도구 2: 민영·공동주차장 수용 한도 판정 시뮬레이터
+       * --------------------------------------------------------- */
+      const simPairs = [
+        { num: document.getElementById('numTotalSpaces'), range: document.getElementById('rangeTotalSpaces') },
+        { num: document.getElementById('numTruckSpaces'), range: document.getElementById('rangeTruckSpaces') },
+        { num: document.getElementById('numExistingContracts'), range: document.getElementById('rangeExistingContracts') },
+        { num: document.getElementById('numNewRequests'), range: document.getElementById('rangeNewRequests') }
+      ];
+
+      const warnTruckExceedTotal = document.getElementById('warnTruckExceedTotal');
+      const simResultBox = document.getElementById('simResultBox');
+      const simBadge = document.getElementById('simBadge');
+      const simRateText = document.getElementById('simRateText');
+      const simRatioDetail = document.getElementById('simRatioDetail');
+      const simGaugeBar = document.getElementById('simGaugeBar');
+      const simReasonText = document.getElementById('simReasonText');
+      const btnCopySimMemo = document.getElementById('btnCopySimMemo');
+
+      let currentSimMemo = '';
+
+      function evaluateCapacity() {
+        let total = Math.max(1, parseInt(simPairs[0].num.value, 10) || 1);
+        let truck = Math.max(0, parseInt(simPairs[1].num.value, 10) || 0);
+        const existing = Math.max(0, parseInt(simPairs[2].num.value, 10) || 0);
+        const newReq = Math.max(0, parseInt(simPairs[3].num.value, 10) || 0);
+
+        if (truck > total) {
+          truck = total;
+          simPairs[1].num.value = truck;
+          simPairs[1].range.value = truck;
+          warnTruckExceedTotal.classList.remove('hidden');
+        } else {
+          warnTruckExceedTotal.classList.add('hidden');
+        }
+
+        const totalContracts = existing + newReq;
+        const isExceeded = truck === 0 ? totalContracts > 0 : totalContracts > truck;
+        const rate = truck === 0 ? (totalContracts > 0 ? 100 : 0) : (totalContracts / truck) * 100;
+        const barWidth = Math.min(100, Math.max(0, rate));
+        const rateLabel = truck === 0 && totalContracts > 0 ? '수용 불가' : `${rate.toFixed(1)}%`;
+
+        simRatioDetail.textContent = `${totalContracts}대 / ${truck}면`;
+        simRateText.textContent = rateLabel;
+        simGaugeBar.style.width = `${barWidth}%`;
+
+        simResultBox.className = 'rounded-2xl p-5 border-2 transition-all duration-300';
+        simBadge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-extrabold';
+        simRateText.className = 'text-2xl font-black tabular-nums';
+        simGaugeBar.className = 'h-full rounded-full transition-all duration-300';
+
+        let decision = '';
+        let reason = '';
+
+        if (isExceeded) {
+          const over = totalContracts - truck;
+          decision = '접수 제한(반려)';
+          reason = `화물차 수용 가능 면수(${truck}면) 대비 총 계약 예정 대수(${totalContracts}대)가 ${over}대 초과되어 신규 차고지 설치 확인 신청 접수가 제한(반려)됩니다.`;
+
+          simResultBox.classList.add('bg-rose-50/70', 'dark:bg-rose-500/10', 'border-rose-300', 'dark:border-rose-500/40');
+          simBadge.classList.add('bg-rose-600', 'text-white');
+          simRateText.classList.add('text-rose-600', 'dark:text-rose-400');
+          simGaugeBar.classList.add('bg-rose-500');
+        } else {
+          const remain = truck - totalContracts;
+          decision = remain === 0 ? '접수 가능 (임계 한도)' : '접수 가능 (정상 수용)';
+          reason = remain === 0
+            ? `화물차 수용 가능 면수(${truck}면)와 총 계약 예정 대수(${totalContracts}대)가 일치하여 접수 가능합니다. (추가 여유 면수 없음)`
+            : `화물차 수용 가능 면수(${truck}면) 이내로 정상 수용 가능합니다. (반영 후 잔여 가능 면수: ${remain}면)`;
+
+          simResultBox.classList.add('bg-emerald-50/70', 'dark:bg-emerald-500/10', 'border-emerald-300', 'dark:border-emerald-500/40');
+          simBadge.classList.add('bg-emerald-600', 'text-white');
+          simRateText.classList.add('text-emerald-600', 'dark:text-emerald-400');
+          simGaugeBar.classList.add('bg-emerald-500');
+        }
+
+        simBadge.textContent = decision;
+        simReasonText.textContent = reason;
+
+        currentSimMemo = [
+          '[민영·공동주차장 현장 점검 및 수용 한도 판정 메모]',
+          `- ① 전체 주차면수: ${total}면`,
+          `- ② 화물차 주차 가능 면수: ${truck}면`,
+          `- ③ 기 체결된 차고지 계약 대수: ${existing}대`,
+          `- ④ 신규 신청 대수: ${newReq}대 (총 계약 예정: ${totalContracts}대)`,
+          `- 수용률: ${rateLabel}`,
+          `- 판정 결과: ${decision}`,
+          `- 검토 의견: ${reason}`
+        ].join('\n');
+      }
+
+      simPairs.forEach(({ num, range }) => {
+        range.addEventListener('input', () => {
+          num.value = range.value;
+          evaluateCapacity();
+        });
+        num.addEventListener('input', () => {
+          const maxVal = parseInt(range.max, 10);
+          const minVal = parseInt(range.min, 10);
+          let v = parseInt(num.value, 10);
+          if (isNaN(v)) v = minVal;
+          range.value = Math.min(maxVal, Math.max(minVal, v));
+          evaluateCapacity();
+        });
+      });
+
+      function setSimValues(total, truck, existing, req, toastMsg) {
+        simPairs[0].num.value = simPairs[0].range.value = total;
+        simPairs[1].num.value = simPairs[1].range.value = truck;
+        simPairs[2].num.value = simPairs[2].range.value = existing;
+        simPairs[3].num.value = simPairs[3].range.value = req;
+        evaluateCapacity();
+        showToast(toastMsg);
+      }
+
+      document.getElementById('btnPresetRelaxed').addEventListener('click', () => {
+        setSimValues(120, 50, 28, 6, '여유(정상 수용) 프리셋이 적용되었습니다.');
+      });
+      document.getElementById('btnPresetCritical').addEventListener('click', () => {
+        setSimValues(100, 40, 35, 5, '임계(100% 한도) 프리셋이 적용되었습니다.');
+      });
+      document.getElementById('btnPresetRejected').addEventListener('click', () => {
+        setSimValues(100, 40, 36, 7, '초과 반려 프리셋이 적용되었습니다.');
+      });
+
+      btnCopySimMemo.addEventListener('click', () => {
+        copyToClipboard(currentSimMemo, '현장 점검 메모가 클립보드에 복사되었습니다.');
+      });
+
+      evaluateCapacity();
+
+      /* ---------------------------------------------------------
+       * J. 섹션 3: 벤토 카드 뷰 <-> 한눈에 비교표 전환 & 요약 복사
+       * --------------------------------------------------------- */
+      const btnViewCard = document.getElementById('btnViewCard');
+      const btnViewTable = document.getElementById('btnViewTable');
+      const issuesCardView = document.getElementById('issuesCardView');
+      const issuesTableView = document.getElementById('issuesTableView');
+
+      btnViewCard.addEventListener('click', () => {
+        issuesCardView.classList.remove('hidden');
+        issuesTableView.classList.add('hidden');
+        btnViewCard.classList.add('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'shadow-sm');
+        btnViewCard.classList.remove('text-slate-600', 'dark:text-slate-400');
+        btnViewTable.classList.remove('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'shadow-sm');
+        btnViewTable.classList.add('text-slate-600', 'dark:text-slate-400');
+      });
+
+      btnViewTable.addEventListener('click', () => {
+        issuesTableView.classList.remove('hidden');
+        issuesCardView.classList.add('hidden');
+        btnViewTable.classList.add('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'shadow-sm');
+        btnViewTable.classList.remove('text-slate-600', 'dark:text-slate-400');
+        btnViewCard.classList.remove('bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'shadow-sm');
+        btnViewCard.classList.add('text-slate-600', 'dark:text-slate-400');
+      });
+
+      document.getElementById('btnCopyIssues').addEventListener('click', () => {
+        const issuesSummary = [
+          '[차고지 실태 점검 및 사후 관리 강화 시 4대 예상 문제점 보고 요약]',
+          '',
+          '가. 관외 차고지 이탈(풍선효과) 및 점검 한계',
+          '  • 관내 관리 강화 시 규제가 느슨한 인근 타 시·군(관외) 차고지로 서류상 등록을 회피하는 풍선효과 발생 우려',
+          '  • 관외 지역은 우리 시의 직접적인 현장 점검이 불가능하므로 실질적인 도심 내 밤샘주차 해소 효과 반감',
+          '',
+          '나. 차고지 인프라 부족에 따른 역민원 발생',
+          '  • 주거지 인근 민간 차고지가 부족한 상태에서 단속·처분만 강화할 경우, 차주들의 생계형 반발 등 역민원 제기 우려',
+          '',
+          '다. 타 지자체와의 행정 형평성 논란',
+          '  • 인근 시·군(화성·파주·오산·연천·포천 등)은 공동차고지 현장 확인을 생략하고 처분 실적이 전무한 실정',
+          '  • 우리 시만 엄격히 적용 시 형평성 민원 및 불복 절차 증가 우려',
+          '',
+          '라. 민원 처리 지연 및 담당자 업무 과부하',
+          '  • 현재 차고지 담당자가 타 업무를 다수 병행하고 있어, 설치 확인 신청 시마다 현장 출장 및 소명·처분 절차를 전담할 경우 기존 민원 지연과 업무 부담 급증'
+        ].join('\n');
+
+        copyToClipboard(issuesSummary, '4대 예상 문제점 보고용 요약이 복사되었습니다.');
+      });
+    })();
+  </script>
+</body>
+</html>
