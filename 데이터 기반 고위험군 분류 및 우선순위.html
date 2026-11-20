@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>데이터 기반 고위험군 분류 및 우선순위 알고리즘 대시보드</title>
+
+  <!-- Pretendard 웹폰트 -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif'],
+          },
+          colors: {
+            slate: {
+              850: '#172033',
+              950: '#0b1120',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="dashboard.css">
+  <script src="dashboard.js" defer></script>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased transition-colors duration-300 min-h-screen flex flex-col">
+  <nav class="dashboard-return no-print" aria-label="통합 대시보드 탐색"><a href="index.html">통합 대시보드로 돌아가기</a></nav>
+
+  <!-- 상단 헤더 -->
+  <header class="sticky top-0 z-40 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <!-- 타이틀 & 분석 배지 -->
+        <div class="flex items-start sm:items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-slate-800 text-white flex items-center justify-center shadow-md shrink-0">
+            <!-- 아이콘: 분석 대시보드 -->
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                데이터 기반 고위험군 분류 및 우선순위 알고리즘
+              </h1>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700/50">
+                <span class="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-pulse"></span>
+                총 1,552대 분석
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+              전체 차고지 등록차량 1,552대를 4단계 위험 등급으로 자동 분류하는 행정 점검 우선순위 대시보드
+            </p>
+          </div>
+        </div>
+
+        <!-- 우측 액션 컨트롤 -->
+        <div class="flex items-center gap-2.5 self-end md:self-auto">
+          <!-- 요약 리포트 복사 버튼 -->
+          <button
+            id="btnCopyHeaderReport"
+            type="button"
+            class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white shadow-sm transition-all cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+            </svg>
+            <span>요약 리포트 복사</span>
+          </button>
+
+          <!-- 다크 모드 토글 스위치 -->
+          <button
+            id="btnDarkMode"
+            type="button"
+            aria-label="다크 모드 전환"
+            class="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
+          >
+            <svg id="iconSun" class="w-4 h-4 hidden text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <svg id="iconMoon" class="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+            <span id="darkModeLabel" class="hidden sm:inline">다크 모드</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 컨테이너 -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
+    <details class="zero-priority" id="zero-priority">
+      <summary>0순위 대상 단속여부 조사 프로그램</summary>
+      <div class="zero-priority-content">
+        <p>1·2등급 차량의 야간 밤샘주차 단속·민원 이력을 대조해 0순위 점검 대상을 선별합니다. 아래는 차량번호 조회와 누적 이력을 확인하는 프로그램의 화면입니다.</p>
+        <a href="단속여부조사프로그램.jpg" target="_blank" rel="noopener">원본 이미지 열기 (새 탭)</a>
+        <img src="단속여부조사프로그램.jpg" width="982" height="679" alt="차량번호, 차고지 구분, 주소, 누적건수를 보여주는 차고지 단속조회 및 누적관리 프로그램 화면">
+      </div>
+    </details>
+
+    <!-- 1. 핵심 요약 대시보드 (KPI 카드 영역) -->
+    <section aria-label="핵심 요약 지표">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <!-- KPI 1: 전체 등록차량 -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">전체 분석 모수</span>
+            <span class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">1,552<span class="text-base font-semibold text-slate-500 ml-1">대</span></div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">전체 차고지 등록차량 4단계 자동 분류</p>
+        </div>
+
+        <!-- KPI 2: 0순위 최우선 -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-rose-200 dark:border-rose-900/60 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-full h-1 bg-rose-500"></div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">0순위 · 최우선</span>
+            <span class="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </span>
+          </div>
+          <div class="text-xl sm:text-2xl font-extrabold text-rose-600 dark:text-rose-400 tracking-tight">교차 매칭 산출</div>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">즉시 현장 확인 및 행정처분 대상</p>
+        </div>
+
+        <!-- KPI 3: 1등급 초고위험 -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-orange-200 dark:border-orange-900/60 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-full h-1 bg-orange-500"></div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300">1등급 · 초고위험</span>
+            <span class="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-extrabold text-orange-600 dark:text-orange-400 tracking-tight">747<span class="text-sm font-semibold text-slate-500 dark:text-slate-400 ml-1">대 중 원거리</span></div>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">포천(137)·여주(125) 등 관외 원거리</p>
+        </div>
+
+        <!-- KPI 4: 2등급 고위험 -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-amber-200 dark:border-amber-900/60 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">2등급 · 고위험</span>
+            <span class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+              </svg>
+            </span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 tracking-tight">557<span class="text-base font-semibold text-slate-500 dark:text-slate-400 ml-1">대</span></div>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">관내 15개 읍면동 '나대지' 차고지</p>
+        </div>
+
+        <!-- KPI 5: 3등급 중위험 -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-blue-200 dark:border-blue-900/60 shadow-sm hover:shadow-md transition-all relative overflow-hidden sm:col-span-2 lg:col-span-1">
+          <div class="absolute top-0 left-0 w-full h-1 bg-blue-500"></div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">3등급 · 중위험</span>
+            <span class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+              </svg>
+            </span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-extrabold text-blue-600 dark:text-blue-400 tracking-tight">53<span class="text-base font-semibold text-slate-500 dark:text-slate-400 ml-1">대</span></div>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">관외 차량 중복·타 시군 점유 건</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 탭 네비게이션 -->
+    <section aria-label="상세 분석 탭">
+      <div class="bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto">
+        <nav class="flex sm:grid sm:grid-cols-4 gap-1.5 min-w-max sm:min-w-0" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            data-tab="tab-overview"
+            aria-selected="true"
+            class="tab-btn flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all cursor-pointer bg-indigo-600 text-white shadow-sm"
+          >
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            </svg>
+            <span>알고리즘 개요 & 분류표</span>
+          </button>
+
+          <button
+            type="button"
+            role="tab"
+            data-tab="tab-charts"
+            aria-selected="false"
+            class="tab-btn flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+            </svg>
+            <span>데이터 시각화 & 지역 분석</span>
+          </button>
+
+          <button
+            type="button"
+            role="tab"
+            data-tab="tab-simulator"
+            aria-selected="false"
+            class="tab-btn flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+            <span>위험 등급 판별 시뮬레이터</span>
+          </button>
+
+          <button
+            type="button"
+            role="tab"
+            data-tab="tab-action"
+            aria-selected="false"
+            class="tab-btn flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            <span>현장 점검 플랜 & 요약 복사</span>
+          </button>
+        </nav>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 탭 1: 알고리즘 개요 & 분류표 -->
+    <!-- =================================================================== -->
+    <section id="tab-overview" class="tab-panel space-y-6">
+      <!-- 데이터 분류 플로우 다이어그램 -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-6 rounded-full bg-indigo-600"></span>
+              알고리즘 자동 분류 파이프라인
+            </h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              차고지 등록 데이터를 공간·유형별로 1차 분류한 뒤, 야간 밤샘주차 단속·민원 이력과 교차 매칭하여 최우선 단속 대상을 도출합니다.
+            </p>
+          </div>
+          <span class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 self-start sm:self-center">
+            4단계 자동 판별 프로세스
+          </span>
+        </div>
+
+        <!-- 플로우 스텝 그리드 -->
+        <div class="grid grid-cols-1 lg:grid-cols-11 gap-4 items-stretch">
+          <!-- STEP 1: 모수 입력 -->
+          <div class="lg:col-span-2 bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 flex flex-col justify-center text-center">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1">STEP 1 · 데이터 수집</span>
+            <div class="text-lg font-extrabold text-slate-900 dark:text-white">전체 등록차량</div>
+            <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 my-1">1,552대</div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">차고지 위치·지목·지번 전수 분석</p>
+          </div>
+
+          <!-- 화살표 1 -->
+          <div class="lg:col-span-1 flex items-center justify-center text-slate-400 dark:text-slate-500">
+            <svg class="w-6 h-6 rotate-90 lg:rotate-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </div>
+
+          <!-- STEP 2: 1~3등급 기본 분류 -->
+          <div class="lg:col-span-3 space-y-2.5 flex flex-col justify-center">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center lg:text-left">STEP 2 · 공간/유형별 1차 분류</div>
+            <div class="p-3 rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/60 flex items-center justify-between gap-2">
+              <div>
+                <div class="text-xs font-bold text-orange-700 dark:text-orange-300">1등급 (초고위험)</div>
+                <div class="text-[11px] text-slate-600 dark:text-slate-400">관외 원거리 차고지 (포천·여주 등)</div>
+              </div>
+              <span class="text-xs font-extrabold text-orange-700 dark:text-orange-300 shrink-0">747대 중</span>
+            </div>
+            <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-center justify-between gap-2">
+              <div>
+                <div class="text-xs font-bold text-amber-800 dark:text-amber-300">2등급 (고위험)</div>
+                <div class="text-[11px] text-slate-600 dark:text-slate-400">관내 15개 읍면동 '나대지' 차고지</div>
+              </div>
+              <span class="text-xs font-extrabold text-amber-700 dark:text-amber-300 shrink-0">557대</span>
+            </div>
+            <div class="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 flex items-center justify-between gap-2">
+              <div>
+                <div class="text-xs font-bold text-blue-700 dark:text-blue-300">3등급 (중위험)</div>
+                <div class="text-[11px] text-slate-600 dark:text-slate-400">동일 지번 중복·타 시군 점유</div>
+              </div>
+              <span class="text-xs font-extrabold text-blue-700 dark:text-blue-300 shrink-0">53대</span>
+            </div>
+          </div>
+
+          <!-- 화살표 2 -->
+          <div class="lg:col-span-1 flex items-center justify-center text-rose-400 dark:text-rose-500">
+            <svg class="w-6 h-6 rotate-90 lg:rotate-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </div>
+
+          <!-- STEP 3: 교차 매칭 -->
+          <div class="lg:col-span-2 bg-indigo-50 dark:bg-indigo-950/40 rounded-2xl p-4 border border-indigo-200 dark:border-indigo-800/60 flex flex-col justify-center text-center">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1">STEP 3 · 교차 매칭</span>
+            <div class="w-10 h-10 mx-auto rounded-full bg-indigo-600 text-white flex items-center justify-center mb-2 shadow-sm">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
+            </div>
+            <div class="text-sm font-extrabold text-slate-900 dark:text-white">야간 밤샘주차<br/>단속·민원 이력</div>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1.5">1·2등급 대상군과<br/>실제 위반 이력 대조</p>
+          </div>
+
+          <!-- STEP 4: 0순위 도출 -->
+          <div class="lg:col-span-2 bg-gradient-to-br from-rose-600 to-rose-700 text-white rounded-2xl p-4 shadow-md flex flex-col justify-center text-center">
+            <span class="inline-block mx-auto px-2 py-0.5 rounded-full bg-white/20 text-[11px] font-bold mb-1.5">STEP 4 · 최종 타깃</span>
+            <div class="text-lg font-black">0순위 (최우선)</div>
+            <div class="text-xs font-medium text-rose-100 mt-1">확정적 위반 의심 차량</div>
+            <div class="mt-3 pt-2.5 border-t border-white/20 text-xs font-bold">
+              즉시 현장 확인 및 행정처분
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4단계 위험 등급 비교 테이블 -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-5">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-6 rounded-full bg-indigo-600"></span>
+              4단계 위험 등급 상세 분류표
+            </h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+              등급별 필터링 및 키워드 검색으로 주요 관리 타깃과 점검 목적을 빠르게 확인하세요.
+            </p>
+          </div>
+
+          <!-- 필터 & 검색 컨트롤 -->
+          <div class="flex flex-col sm:flex-row gap-3">
+            <!-- 등급 필터 버튼 그룹 -->
+            <div class="flex flex-wrap gap-1.5" id="tierFilterGroup">
+              <button type="button" data-filter="all" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 transition-all cursor-pointer">전체</button>
+              <button type="button" data-filter="0" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 hover:bg-rose-100 transition-all cursor-pointer">0순위</button>
+              <button type="button" data-filter="1" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300 hover:bg-orange-100 transition-all cursor-pointer">1등급</button>
+              <button type="button" data-filter="2" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 hover:bg-amber-100 transition-all cursor-pointer">2등급</button>
+              <button type="button" data-filter="3" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 hover:bg-blue-100 transition-all cursor-pointer">3등급</button>
+            </div>
+
+            <!-- 키워드 검색 -->
+            <div class="relative min-w-[200px]">
+              <input
+                type="text"
+                id="tableSearchInput"
+                placeholder="지역, 기준, 키워드 검색..."
+                class="w-full pl-9 pr-3 py-1.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              />
+              <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- 반응형 테이블 래퍼 -->
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+          <table class="w-full text-left border-collapse min-w-[680px]">
+            <thead>
+              <tr class="bg-slate-100/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
+                <th class="py-3.5 px-4 w-40">위험 등급</th>
+                <th class="py-3.5 px-4 w-64">분류 기준</th>
+                <th class="py-3.5 px-4 w-44">대상 규모</th>
+                <th class="py-3.5 px-4">주요 관리 타깃 및 점검 목적</th>
+              </tr>
+            </thead>
+            <tbody id="classificationTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 text-sm">
+              <!-- JS로 동적 렌더링 -->
+            </tbody>
+          </table>
+        </div>
+        <div id="tableEmptyState" class="hidden py-10 text-center text-sm text-slate-500 dark:text-slate-400">
+          검색 조건에 일치하는 위험 등급 항목이 없습니다.
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 탭 2: 데이터 시각화 & 지역 분석 -->
+    <!-- =================================================================== -->
+    <section id="tab-charts" class="tab-panel hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- 차트 1: 등급별 관리 대상 규모 비교 -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+          <div class="mb-4">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+              전체 등록차량(1,552대) 등급별 분포 비중
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              관외 등록(747대), 관내 나대지(557대), 관외 점유·중복(53대) 및 기타 일반 관리군(195대) 비중
+            </p>
+          </div>
+          <div class="relative flex-1 min-h-[280px] flex items-center justify-center">
+            <canvas id="chartTierDistribution"></canvas>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            ※ <strong>원문 기준 주석:</strong> 1등급은 전체 관외 등록차량 747대 중 일일 출퇴근 불가 원거리 권역을 대상으로 하며, 0순위(최우선)는 1·2등급 대상 중 야간 밤샘주차 단속·민원 이력 차량을 교차 매칭하여 별도 산출합니다.
+          </div>
+        </div>
+
+        <!-- 차트 2: 1등급 관외 원거리 주요 권역 현황 -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+          <div class="mb-4">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+              1등급(초고위험) 관외 등록 주요 권역 현황 (총 747대)
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              포천(137대)과 여주(125대) 두 권역이 전체 관외 등록차량의 약 35.1%(262대)를 차지
+            </p>
+          </div>
+          <div class="relative flex-1 min-h-[280px] flex items-center justify-center">
+            <canvas id="chartOutOfArea"></canvas>
+          </div>
+          <div class="mt-4 grid grid-cols-3 gap-2 text-center">
+            <div class="p-2.5 rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-100 dark:border-orange-900/50">
+              <div class="text-xs text-slate-500 dark:text-slate-400">포천 권역</div>
+              <div class="text-base font-extrabold text-orange-600 dark:text-orange-400">137대 <span class="text-[11px] font-semibold">(18.3%)</span></div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-100 dark:border-orange-900/50">
+              <div class="text-xs text-slate-500 dark:text-slate-400">여주 권역</div>
+              <div class="text-base font-extrabold text-orange-600 dark:text-orange-400">125대 <span class="text-[11px] font-semibold">(16.7%)</span></div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <div class="text-xs text-slate-500 dark:text-slate-400">기타 관외</div>
+              <div class="text-base font-extrabold text-slate-700 dark:text-slate-200">485대 <span class="text-[11px] font-semibold">(64.9%)</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 차트 3: 2등급 관내 나대지 상위 5개 읍면동 막대 차트 -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
+          <div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              2등급(고위험) 관내 15개 읍면동 '나대지' 차고지 분포 (총 557대)
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              상위 5개 읍면동(화도·진건·진접·양정·수동)에 373대(67.0%)가 집중되어 있으며, 나머지 10개 읍면동에 184대(33.0%) 분포
+            </p>
+          </div>
+          <span class="inline-flex items-center px-3 py-1 rounded-xl text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 self-start sm:self-center">
+            상위 5개 지역 집중도 67.0%
+          </span>
+        </div>
+        <div class="relative h-[320px] w-full">
+          <canvas id="chartVacantLot"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 탭 3: 위험 등급 자동 판별 시뮬레이터 -->
+    <!-- =================================================================== -->
+    <section id="tab-simulator" class="tab-panel hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- 좌측: 조건 입력 패널 -->
+        <div class="lg:col-span-6 bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-6 rounded-full bg-indigo-600"></span>
+              가상 차량 조건 설정
+            </h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              차고지 유형, 세부 지역, 야간 단속·민원 이력을 선택하면 알고리즘의 실시간 등급 판정 결과를 확인할 수 있습니다.
+            </p>
+          </div>
+
+          <!-- 차량번호(선택) -->
+          <div>
+            <label for="simPlate" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-2">
+              대상 차량번호 / 식별명 (선택 입력)
+            </label>
+            <input
+              type="text"
+              id="simPlate"
+              value="경기 80바 1552"
+              placeholder="예: 경기 80바 1552"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <!-- 1. 차고지 위치/유형 선택 -->
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-2.5">
+              1. 차고지 위치 및 등록 유형
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="simTypeGroup">
+              <label class="sim-radio-card relative flex items-start gap-3 p-3.5 rounded-xl border-2 border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/30 cursor-pointer transition-all">
+                <input type="radio" name="simType" value="remote" checked class="mt-0.5 accent-indigo-600" />
+                <div>
+                  <div class="text-sm font-bold text-slate-900 dark:text-white">관외 원거리 권역</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">일일 출퇴근 불가 권역</div>
+                </div>
+              </label>
+
+              <label class="sim-radio-card relative flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer transition-all">
+                <input type="radio" name="simType" value="vacant" class="mt-0.5 accent-indigo-600" />
+                <div>
+                  <div class="text-sm font-bold text-slate-900 dark:text-white">관내 '나대지' 차고지</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">관내 15개 읍면동 나대지</div>
+                </div>
+              </label>
+
+              <label class="sim-radio-card relative flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer transition-all">
+                <input type="radio" name="simType" value="duplicate" class="mt-0.5 accent-indigo-600" />
+                <div>
+                  <div class="text-sm font-bold text-slate-900 dark:text-white">동일 지번 과다 중복</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">쪼개기 등록·타 시군 점유</div>
+                </div>
+              </label>
+
+              <label class="sim-radio-card relative flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer transition-all">
+                <input type="radio" name="simType" value="normal" class="mt-0.5 accent-indigo-600" />
+                <div>
+                  <div class="text-sm font-bold text-slate-900 dark:text-white">일반 적정 차고지</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">관내 정규 시설·적정 등록</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- 2. 세부 지역 선택 -->
+          <div>
+            <label for="simRegion" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-2">
+              2. 세부 차고지 지역 선택
+            </label>
+            <select
+              id="simRegion"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+            >
+              <!-- JS로 유형에 맞춰 동적 생성 -->
+            </select>
+          </div>
+
+          <!-- 3. 야간 밤샘주차 단속·민원 이력 토글 -->
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-4">
+            <div>
+              <div class="text-sm font-bold text-slate-900 dark:text-white">야간 밤샘주차 단속·민원 이력 보유</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                1·2등급 대상이 이력을 보유한 경우 <strong>0순위(최우선)</strong>로 자동 격상됩니다.
+              </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+              <input type="checkbox" id="simHistoryToggle" class="sr-only peer" />
+              <div class="w-12 h-7 bg-slate-300 dark:bg-slate-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-rose-400 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-rose-600"></div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 우측: 실시간 판정 결과 패널 -->
+        <div class="lg:col-span-6 bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-6">
+          <div class="space-y-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">알고리즘 실시간 판정 결과</span>
+              <span id="simResultBadge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300">
+                1등급 (초고위험)
+              </span>
+            </div>
+
+            <!-- 결과 메인 박스 -->
+            <div id="simResultBox" class="p-5 rounded-2xl border-2 border-orange-200 dark:border-orange-800/60 bg-orange-50/70 dark:bg-orange-950/30 transition-all">
+              <div class="flex items-baseline justify-between gap-2">
+                <h3 id="simResultTitle" class="text-2xl font-black text-orange-700 dark:text-orange-300">1등급 · 초고위험</h3>
+                <span id="simRiskPercent" class="text-lg font-extrabold text-orange-600 dark:text-orange-400">위험도 85%</span>
+              </div>
+
+              <!-- 위험도 게이지 바 -->
+              <div class="w-full h-3 bg-white/80 dark:bg-slate-800 rounded-full overflow-hidden mt-3 border border-black/5">
+                <div id="simRiskBar" class="h-full bg-orange-500 rounded-full transition-all duration-500" style="width: 85%;"></div>
+              </div>
+
+              <p id="simResultSubtitle" class="text-xs font-semibold text-slate-600 dark:text-slate-300 mt-3">
+                허위·형식 계약 의심군 (관외 원거리 차고지 등록)
+              </p>
+            </div>
+
+            <!-- 판정 사유 -->
+            <div class="space-y-2">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">판정 사유</h4>
+              <p id="simReasonText" class="text-sm text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700/80 leading-relaxed">
+                <!-- JS 렌더링 -->
+              </p>
+            </div>
+
+            <!-- 권장 현장 점검 및 행정조치 가이드 -->
+            <div class="space-y-2">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">권장 현장 점검 및 행정조치 가이드</h4>
+              <ul id="simGuideList" class="space-y-2 text-sm text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700/80">
+                <!-- JS 렌더링 -->
+              </ul>
+            </div>
+          </div>
+
+          <!-- 점검 지시서 복사 버튼 -->
+          <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+            <button
+              id="btnCopyDirective"
+              type="button"
+              class="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white shadow-sm active:scale-[0.99] transition-all cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <span>점검 지시서 텍스트 클립보드 복사</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 탭 4: 현장 점검 액션 플랜 & 요약 복사 -->
+    <!-- =================================================================== -->
+    <section id="tab-action" class="tab-panel hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- 좌측: 등급별 현장 점검 체크리스트 -->
+        <div class="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <span class="w-2 h-6 rounded-full bg-indigo-600"></span>
+                등급별 현장 점검 액션 체크리스트
+              </h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                점검 완료 항목을 체크하여 현장 대응 진행률을 실시간으로 관리하세요.
+              </p>
+            </div>
+            <button
+              id="btnResetChecklist"
+              type="button"
+              class="self-start sm:self-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all cursor-pointer"
+            >
+              체크 초기화
+            </button>
+          </div>
+
+          <!-- 진행률 바 -->
+          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700">
+            <div class="flex items-center justify-between text-xs font-bold mb-2">
+              <span class="text-slate-600 dark:text-slate-300">전체 점검 액션 진행률</span>
+              <span id="checklistProgressText" class="text-indigo-600 dark:text-indigo-400">0 / 8 완료 (0%)</span>
+            </div>
+            <div class="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div id="checklistProgressBar" class="h-full bg-indigo-600 rounded-full transition-all duration-300" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- 체크리스트 항목 컨테이너 -->
+          <div id="checklistContainer" class="space-y-4">
+            <!-- JS로 렌더링 -->
+          </div>
+        </div>
+
+        <!-- 우측: 회의/보고서용 핵심 요약 텍스트 생성기 -->
+        <div class="lg:col-span-5 bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-5">
+          <div class="space-y-4">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <span class="w-2 h-6 rounded-full bg-indigo-600"></span>
+                보고서·회의용 핵심 요약 생성
+              </h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                공문서, 회의 자료, 메신저 공유에 바로 붙여넣기할 수 있는 요약문입니다.
+              </p>
+            </div>
+
+            <!-- 요약 포맷 토글 -->
+            <div class="flex gap-2">
+              <button
+                type="button"
+                id="btnSummaryDetailed"
+                class="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-indigo-600 text-white transition-all cursor-pointer"
+              >
+                상세 보고서형
+              </button>
+              <button
+                type="button"
+                id="btnSummaryBrief"
+                class="flex-1 py-2 px-3 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer"
+              >
+                핵심 브리핑형
+              </button>
+            </div>
+
+            <!-- 텍스트 미리보기 영역 -->
+            <textarea
+              id="summaryPreviewTextarea"
+              rows="14"
+              readonly
+              class="w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-xs sm:text-sm font-mono text-slate-700 dark:text-slate-200 leading-relaxed focus:outline-none resize-none"
+            ></textarea>
+          </div>
+
+          <button
+            id="btnCopySummaryTab"
+            type="button"
+            class="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white shadow-sm transition-all cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+            </svg>
+            <span>요약 텍스트 원클릭 복사</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 py-5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+      <div>데이터 기반 고위험군 분류 및 우선순위 알고리즘 분석 대시보드</div>
+      <div>분석 기준: 전체 차고지 등록차량 1,552대 · 4단계 자동 분류 체계</div>
+    </div>
+  </footer>
+
+  <!-- 우측 하단 토스트(Toast) 알림 -->
+  <div
+    id="toastNotification"
+    role="status"
+    aria-live="polite"
+    class="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl border border-slate-700/50 dark:border-slate-200 text-sm font-semibold transform translate-y-6 opacity-0 pointer-events-none transition-all duration-300"
+  >
+    <svg class="w-5 h-5 text-emerald-400 dark:text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
+    <span id="toastMessage">클립보드에 복사되었습니다.</span>
+  </div>
+
+  <!-- 메인 스크립트 -->
+  <script>
+    /**
+     * =========================================================================
+     * 1. 핵심 데이터 정의 (원문 자료 100% 정확 반영)
+     * =========================================================================
+     */
+    const RISK_TIERS = [
+      {
+        id: '0',
+        badge: '0순위 (최우선)',
+        badgeClass: 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60',
+        dotClass: 'bg-rose-500',
+        criteria: '1·2등급 대상 중 야간 밤샘주차 단속·민원 이력 차량',
+        scale: '교차 매칭 산출',
+        scaleSub: '1·2등급 × 단속·민원 DB',
+        target: '서류상 차고지를 두고 실제 주거지 도로변에 주차하는 확정적 위반 의심 차량 (즉시 현장 확인 및 행정처분)',
+        keywords: '0순위 최우선 야간 밤샘주차 단속 민원 교차 매칭 확정적 위반 주거지 도로변 즉시 현장 확인 행정처분'
+      },
+      {
+        id: '1',
+        badge: '1등급 (초고위험)',
+        badgeClass: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300 border border-orange-200 dark:border-orange-800/60',
+        dotClass: 'bg-orange-500',
+        criteria: '관외 원거리 차고지 등록 차량 (일일 출퇴근 불가 권역)',
+        scale: '747대 중 원거리 권역',
+        scaleSub: '포천 137대, 여주 125대 등',
+        target: '포천(137대), 여주(125대) 등 허위·형식 계약 의심군',
+        keywords: '1등급 초고위험 관외 원거리 일일 출퇴근 불가 747 포천 137 여주 125 허위 형식 계약'
+      },
+      {
+        id: '2',
+        badge: '2등급 (고위험)',
+        badgeClass: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60',
+        dotClass: 'bg-amber-500',
+        criteria: "관내 15개 읍면동 '나대지' 차고지 등록 차량",
+        scale: '557대',
+        scaleSub: '상위 5개 373대 + 기타 10개 184대',
+        target: '화도읍(106대), 진건읍(75대), 진접읍(74대), 양정동(66대), 수동면(52대) 등 실주차 사각지대 (나머지 10개 읍면동 184대 포함 총 557대)',
+        keywords: '2등급 고위험 관내 15개 읍면동 나대지 557 화도읍 106 진건읍 75 진접읍 74 양정동 66 수동면 52 실주차 사각지대 184'
+      },
+      {
+        id: '3',
+        badge: '3등급 (중위험)',
+        badgeClass: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60',
+        dotClass: 'bg-blue-500',
+        criteria: '동일 지번 과다 중복 등록·관외 차량 점유 건',
+        scale: '53대 (관외 차량)',
+        scaleSub: '관내 차고지 타 시군 점유',
+        target: "동일 나대지 지번 '쪼개기 등록' 의심 건 등 관내 차고지 점유 타 시군 차량",
+        keywords: '3등급 중위험 동일 지번 과다 중복 관외 차량 점유 53 쪼개기 등록 나대지 타 시군'
+      }
+    ];
+
+    const CHECKLIST_GROUPS = [
+      {
+        tier: '0순위 (최우선)',
+        color: 'text-rose-600 dark:text-rose-400',
+        bg: 'bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-900/50',
+        items: [
+          { id: 'chk-0-1', text: '1·2등급 대상군과 야간 밤샘주차 단속·민원 DB 교차 매칭 명단 확정' },
+          { id: 'chk-0-2', text: '확정적 위반 의심 차량 대상 즉시 야간 현장 확인 및 행정처분(과징금·운행정지 등) 착수' }
+        ]
+      },
+      {
+        tier: '1등급 (초고위험)',
+        color: 'text-orange-600 dark:text-orange-400',
+        bg: 'bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-900/50',
+        items: [
+          { id: 'chk-1-1', text: '포천(137대)·여주(125대) 등 원거리 관외 차고지 임대차 계약서 및 실사용 증빙 일제 점검' },
+          { id: 'chk-1-2', text: '일일 출퇴근 불가 권역 등록 차량의 허위·형식 계약 여부 소명 자료 징구' }
+        ]
+      },
+      {
+        tier: '2등급 (고위험)',
+        color: 'text-amber-700 dark:text-amber-400',
+        bg: 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50',
+        items: [
+          { id: 'chk-2-1', text: '상위 5개 읍면동(화도·진건·진접·양정·수동, 373대) 나대지 차고지 현장 실주차 여부 집중 점검' },
+          { id: 'chk-2-2', text: '나머지 10개 읍면동 나대지 차고지(184대) 진출입 가능 여부 및 주차 구획 실태 확인' }
+        ]
+      },
+      {
+        tier: '3등급 (중위험)',
+        color: 'text-blue-600 dark:text-blue-400',
+        bg: 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900/50',
+        items: [
+          { id: 'chk-3-1', text: "동일 나대지 지번 과다 중복('쪼개기 등록' 의심) 필지 면적 대비 등록 대수 적정성 검증" },
+          { id: 'chk-3-2', text: '관내 차고지를 점유 중인 타 시군 차량(53대) 해당 지자체 통보 및 합동 관리' }
+        ]
+      }
+    ];
+
+    const SIM_REGIONS = {
+      remote: [
+        { value: '포천시 (137대 등록 권역)', label: '포천시 (관외 원거리 · 137대 집중)' },
+        { value: '여주시 (125대 등록 권역)', label: '여주시 (관외 원거리 · 125대 집중)' },
+        { value: '기타 관외 원거리 권역', label: '기타 관외 원거리 권역 (일일 출퇴근 불가)' }
+      ],
+      vacant: [
+        { value: '화도읍 (106대 · 나대지 최다)', label: '화도읍 (관내 나대지 · 106대)' },
+        { value: '진건읍 (75대)', label: '진건읍 (관내 나대지 · 75대)' },
+        { value: '진접읍 (74대)', label: '진접읍 (관내 나대지 · 74대)' },
+        { value: '양정동 (66대)', label: '양정동 (관내 나대지 · 66대)' },
+        { value: '수동면 (52대)', label: '수동면 (관내 나대지 · 52대)' },
+        { value: '기타 관내 10개 읍면동 (184대)', label: '기타 관내 10개 읍면동 나대지 (184대)' }
+      ],
+      duplicate: [
+        { value: '관내 동일 나대지 지번 (타 시군 차량 점유)', label: '관내 동일 나대지 지번 (타 시군 차량 53대 군)' },
+        { value: '동일 지번 다수 쪼개기 등록 필지', label: '동일 지번 과다 중복 (쪼개기 등록 의심 필지)' }
+      ],
+      normal: [
+        { value: '관내 정규 차고지 (공영/민영 시설)', label: '관내 정규 차고지 (적정 주차 시설)' },
+        { value: '관내 자가/적법 임대 차고지', label: '관내 자가/적법 임대 차고지' }
+      ]
+    };
+
+    /**
+     * =========================================================================
+     * 2. 상태 관리 변수
+     * =========================================================================
+     */
+    let currentFilter = 'all';
+    let currentSearch = '';
+    let chartsInitialized = false;
+    let chartInstances = {};
+    let toastTimer = null;
+    let currentSummaryMode = 'detailed';
+
+    /**
+     * =========================================================================
+     * 3. 유틸리티: 클립보드 복사 (iFrame 호환 execCommand) & 토스트 알림
+     * =========================================================================
+     */
+    function copyToClipboard(text, successMsg = '클립보드에 복사되었습니다.') {
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.top = '-9999px';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        textarea.setSelectionRange(0, textarea.value.length);
+        const ok = document.execCommand('copy');
+        document.body.removeChild(textarea);
+
+        if (ok) {
+          showToast(successMsg);
+        } else {
+          showToast('복사에 실패했습니다. 직접 선택하여 복사해 주세요.');
+        }
+      } catch (err) {
+        console.error('Clipboard copy error:', err);
+        showToast('복사 중 오류가 발생했습니다.');
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toastNotification');
+      const msgEl = document.getElementById('toastMessage');
+      msgEl.textContent = message;
+
+      toast.classList.remove('translate-y-6', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('translate-y-6', 'opacity-0', 'pointer-events-none');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 2800);
+    }
+
+    /**
+     * =========================================================================
+     * 4. 다크 모드 토글 및 차트 테마 동기화
+     * =========================================================================
+     */
+    function isDarkMode() {
+      return document.documentElement.classList.contains('dark');
+    }
+
+    function updateDarkModeUI() {
+      const dark = isDarkMode();
+      document.getElementById('iconSun').classList.toggle('hidden', !dark);
+      document.getElementById('iconMoon').classList.toggle('hidden', dark);
+      document.getElementById('darkModeLabel').textContent = dark ? '라이트 모드' : '다크 모드';
+
+      if (chartsInitialized) {
+        updateChartTheme();
+      }
+    }
+
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+      updateDarkModeUI();
+    }
+
+    /**
+     * =========================================================================
+     * 5. 탭 전환 로직
+     * =========================================================================
+     */
+    function initTabs() {
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      const tabPanels = document.querySelectorAll('.tab-panel');
+
+      tabBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.dataset.tab;
+
+          // 버튼 스타일 업데이트
+          tabBtns.forEach((b) => {
+            const active = b === btn;
+            b.setAttribute('aria-selected', active ? 'true' : 'false');
+            if (active) {
+              b.className = 'tab-btn flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all cursor-pointer bg-indigo-600 text-white shadow-sm';
+            } else {
+              b.className = 'tab-btn flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800';
+            }
+          });
+
+          // 패널 표시 업데이트
+          tabPanels.forEach((panel) => {
+            panel.classList.toggle('hidden', panel.id !== targetId);
+          });
+
+          // 차트 탭 활성화 시 지연 초기화 및 리사이즈
+          if (targetId === 'tab-charts') {
+            if (!chartsInitialized) {
+              initCharts();
+            } else {
+              Object.values(chartInstances).forEach((c) => {
+                c.resize();
+                c.update();
+              });
+            }
+          }
+        });
+      });
+    }
+
+    /**
+     * =========================================================================
+     * 6. 탭 1: 4단계 위험 등급 비교 테이블 렌더링 및 필터/검색
+     * =========================================================================
+     */
+    function renderClassificationTable() {
+      const tbody = document.getElementById('classificationTableBody');
+      const emptyState = document.getElementById('tableEmptyState');
+      const query = currentSearch.trim().toLowerCase();
+
+      const filtered = RISK_TIERS.filter((item) => {
+        const matchTier = currentFilter === 'all' || item.id === currentFilter;
+        const matchQuery = !query ||
+          item.badge.toLowerCase().includes(query) ||
+          item.criteria.toLowerCase().includes(query) ||
+          item.scale.toLowerCase().includes(query) ||
+          item.target.toLowerCase().includes(query) ||
+          item.keywords.toLowerCase().includes(query);
+        return matchTier && matchQuery;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      tbody.innerHTML = filtered.map((item) => `
+        <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+          <td class="py-4 px-4 align-top">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold ${item.badgeClass}">
+              <span class="w-1.5 h-1.5 rounded-full ${item.dotClass}"></span>
+              ${item.badge}
+            </span>
+          </td>
+          <td class="py-4 px-4 align-top font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">
+            ${item.criteria}
+          </td>
+          <td class="py-4 px-4 align-top">
+            <div class="font-extrabold text-slate-900 dark:text-white">${item.scale}</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${item.scaleSub}</div>
+          </td>
+          <td class="py-4 px-4 align-top text-slate-600 dark:text-slate-300 leading-relaxed">
+            ${item.target}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function initTableControls() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      filterBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          currentFilter = btn.dataset.filter;
+          filterBtns.forEach((b) => {
+            b.classList.remove('ring-2', 'ring-offset-1', 'ring-indigo-500', 'dark:ring-offset-slate-900');
+          });
+          btn.classList.add('ring-2', 'ring-offset-1', 'ring-indigo-500', 'dark:ring-offset-slate-900');
+          renderClassificationTable();
+        });
+      });
+
+      document.getElementById('tableSearchInput').addEventListener('input', (e) => {
+        currentSearch = e.target.value;
+        renderClassificationTable();
+      });
+
+      renderClassificationTable();
+    }
+
+    /**
+     * =========================================================================
+     * 7. 탭 2: Chart.js 데이터 시각화 (다크 모드 자동 반영)
+     * =========================================================================
+     */
+    function getChartColors() {
+      const dark = isDarkMode();
+      return {
+        text: dark ? '#cbd5e1' : '#334155',
+        subtext: dark ? '#94a3b8' : '#64748b',
+        grid: dark ? 'rgba(148, 163, 184, 0.14)' : 'rgba(15, 23, 42, 0.08)',
+        border: dark ? '#0f172a' : '#ffffff'
+      };
+    }
+
+    function initCharts() {
+      const colors = getChartColors();
+      Chart.defaults.font.family = "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif";
+
+      // 1) 전체 등급별 규모 비교 도넛 차트
+      const ctx1 = document.getElementById('chartTierDistribution').getContext('2d');
+      chartInstances.tier = new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: [
+            '1등급 모수: 관외 등록 (747대)',
+            '2등급: 관내 나대지 (557대)',
+            '3등급: 관외 점유·중복 (53대)',
+            '기타 일반 관리군 (195대)'
+          ],
+          datasets: [{
+            data: [747, 557, 53, 195],
+            backgroundColor: ['#f97316', '#f59e0b', '#3b82f6', '#94a3b8'],
+            borderColor: colors.border,
+            borderWidth: 3,
+            hoverOffset: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: colors.text,
+                padding: 14,
+                usePointStyle: true,
+                pointStyle: 'circle',
+                font: { size: 12, weight: '600' }
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const val = ctx.raw;
+                  const pct = ((val / 1552) * 100).toFixed(1);
+                  return ` ${val.toLocaleString()}대 (${pct}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // 2) 1등급 관외 원거리 주요 권역 현황 (수평 막대 차트)
+      const ctx2 = document.getElementById('chartOutOfArea').getContext('2d');
+      chartInstances.outOfArea = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: ['포천 권역', '여주 권역', '기타 관외 권역'],
+          datasets: [{
+            label: '등록 대수',
+            data: [137, 125, 485],
+            backgroundColor: ['#ea580c', '#f97316', '#cbd5e1'],
+            borderRadius: 10,
+            barThickness: 32
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const val = ctx.raw;
+                  const pct = ((val / 747) * 100).toFixed(1);
+                  return ` ${val}대 (관외 747대 중 ${pct}%)`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              grid: { color: colors.grid },
+              ticks: { color: colors.subtext, font: { size: 11 } }
+            },
+            y: {
+              grid: { display: false },
+              ticks: { color: colors.text, font: { size: 12, weight: '700' } }
+            }
+          }
+        }
+      });
+
+      // 3) 2등급 관내 '나대지' 차고지 상위 5개 읍면동 막대 차트
+      const ctx3 = document.getElementById('chartVacantLot').getContext('2d');
+      chartInstances.vacant = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+          labels: ['화도읍', '진건읍', '진접읍', '양정동', '수동면', '기타 10개 읍면동'],
+          datasets: [{
+            label: '나대지 차고지 등록 대수',
+            data: [106, 75, 74, 66, 52, 184],
+            backgroundColor: [
+              '#d97706',
+              '#f59e0b',
+              '#f59e0b',
+              '#fbbf24',
+              '#fbbf24',
+              '#94a3b8'
+            ],
+            borderRadius: 10,
+            maxBarThickness: 54
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const val = ctx.raw;
+                  const pct = ((val / 557) * 100).toFixed(1);
+                  return ` ${val}대 (2등급 557대 중 ${pct}%)`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: colors.text, font: { size: 12, weight: '700' } }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: colors.grid },
+              ticks: { color: colors.subtext, font: { size: 11 } }
+            }
+          }
+        }
+      });
+
+      chartsInitialized = true;
+    }
+
+    function updateChartTheme() {
+      const colors = getChartColors();
+
+      if (chartInstances.tier) {
+        chartInstances.tier.data.datasets[0].borderColor = colors.border;
+        chartInstances.tier.options.plugins.legend.labels.color = colors.text;
+        chartInstances.tier.update();
+      }
+
+      if (chartInstances.outOfArea) {
+        chartInstances.outOfArea.options.scales.x.grid.color = colors.grid;
+        chartInstances.outOfArea.options.scales.x.ticks.color = colors.subtext;
+        chartInstances.outOfArea.options.scales.y.ticks.color = colors.text;
+        chartInstances.outOfArea.update();
+      }
+
+      if (chartInstances.vacant) {
+        chartInstances.vacant.options.scales.x.ticks.color = colors.text;
+        chartInstances.vacant.options.scales.y.grid.color = colors.grid;
+        chartInstances.vacant.options.scales.y.ticks.color = colors.subtext;
+        chartInstances.vacant.update();
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 8. 탭 3: 위험 등급 자동 판별 시뮬레이터
+     * =========================================================================
+     */
+    let lastSimResult = null;
+
+    function populateSimRegions(type) {
+      const select = document.getElementById('simRegion');
+      const list = SIM_REGIONS[type] || [];
+      select.innerHTML = list.map((opt) => `<option value="${opt.value}">${opt.label}</option>`).join('');
+    }
+
+    function evaluateSimulator() {
+      const type = document.querySelector('input[name="simType"]:checked').value;
+      const region = document.getElementById('simRegion').value;
+      const hasHistory = document.getElementById('simHistoryToggle').checked;
+      const plate = document.getElementById('simPlate').value.trim() || '미지정 차량';
+
+      // 라디오 카드 강조 스타일 업데이트
+      document.querySelectorAll('.sim-radio-card').forEach((card) => {
+        const input = card.querySelector('input[type="radio"]');
+        if (input.checked) {
+          card.classList.add('border-2', 'border-indigo-600', 'bg-indigo-50/50', 'dark:bg-indigo-950/30');
+          card.classList.remove('border', 'border-slate-200', 'dark:border-slate-700');
+        } else {
+          card.classList.remove('border-2', 'border-indigo-600', 'bg-indigo-50/50', 'dark:bg-indigo-950/30');
+          card.classList.add('border', 'border-slate-200', 'dark:border-slate-700');
+        }
+      });
+
+      let result = {};
+
+      if ((type === 'remote' || type === 'vacant') && hasHistory) {
+        // 0순위 (최우선)
+        const baseDesc = type === 'remote' ? '1등급(관외 원거리 차고지)' : "2등급(관내 '나대지' 차고지)";
+        result = {
+          tier: '0순위 (최우선)',
+          title: '0순위 · 최우선 단속',
+          percent: 100,
+          subtitle: '서류상 차고지를 두고 실제 주거지 도로변에 주차하는 확정적 위반 의심 차량',
+          reason: `${baseDesc} 대상군[${region}]에 해당하며, 야간 밤샘주차 단속·민원 이력이 교차 매칭되어 최우선(0순위) 등급으로 자동 격상되었습니다.`,
+          guides: [
+            '즉시 야간 현장 출동 및 실제 밤샘주차 위반 여부 채증',
+            '서류상 차고지 실사용 여부 확인 및 차고지 외 밤샘주차 행정처분 착수',
+            '허위 차고지 등록 확인 시 사업정지 또는 과징금 부과 절차 진행'
+          ],
+          badgeCls: 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300',
+          boxCls: 'border-rose-300 dark:border-rose-800/80 bg-rose-50/80 dark:bg-rose-950/40',
+          titleCls: 'text-rose-700 dark:text-rose-300',
+          pctCls: 'text-rose-600 dark:text-rose-400',
+          barCls: 'bg-rose-600'
+        };
+      } else if (type === 'remote') {
+        // 1등급 (초고위험)
+        result = {
+          tier: '1등급 (초고위험)',
+          title: '1등급 · 초고위험',
+          percent: 85,
+          subtitle: '일일 출퇴근 불가 권역 등록 · 허위·형식 계약 의심군',
+          reason: `관외 원거리 차고지[${region}]에 등록된 차량으로, 물리적 거리상 일일 출퇴근 및 실제 차고지 이용이 곤란한 초고위험(1등급)군으로 분류되었습니다.`,
+          guides: [
+            '차고지 임대차 계약서 진위 여부 및 임대료 납부 증빙 서류 점검',
+            '운행기록계(DTG) 또는 통행 내역 대조를 통한 실제 차고지 방문 여부 확인',
+            '야간 밤샘주차 민원·단속 발생 시 즉시 0순위(최우선)로 상향 관리'
+          ],
+          badgeCls: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
+          boxCls: 'border-orange-300 dark:border-orange-800/80 bg-orange-50/80 dark:bg-orange-950/40',
+          titleCls: 'text-orange-700 dark:text-orange-300',
+          pctCls: 'text-orange-600 dark:text-orange-400',
+          barCls: 'bg-orange-500'
+        };
+      } else if (type === 'vacant') {
+        // 2등급 (고위험)
+        result = {
+          tier: '2등급 (고위험)',
+          title: '2등급 · 고위험',
+          percent: 70,
+          subtitle: "관내 15개 읍면동 '나대지' 차고지 · 실주차 사각지대",
+          reason: `관내 나대지 차고지[${region}] 등록 차량으로, 주차 시설 미비 및 관리 사각지대 특성상 실제 미주차 가능성이 높은 고위험(2등급)군으로 분류되었습니다.`,
+          guides: [
+            '해당 나대지 필지 현장 방문을 통한 차량 진출입 가능 여부 및 실주차 흔적 점검',
+            '지목·용도 변경 또는 타 용도(적치장 등) 전용 여부 확인',
+            '야간 단속·민원 이력 연계 모니터링 강화 (이력 발생 시 0순위 격상)'
+          ],
+          badgeCls: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300',
+          boxCls: 'border-amber-300 dark:border-amber-800/80 bg-amber-50/80 dark:bg-amber-950/40',
+          titleCls: 'text-amber-800 dark:text-amber-300',
+          pctCls: 'text-amber-600 dark:text-amber-400',
+          barCls: 'bg-amber-500'
+        };
+      } else if (type === 'duplicate') {
+        // 3등급 (중위험)
+        result = {
+          tier: '3등급 (중위험)',
+          title: '3등급 · 중위험',
+          percent: 55,
+          subtitle: "동일 지번 '쪼개기 등록' 의심 및 관내 차고지 점유 타 시군 차량",
+          reason: `[${region}] 조건에 따라 동일 지번 과다 중복 등록 또는 관내 차고지를 점유 중인 관외 차량(3등급)으로 분류되었습니다.${hasHistory ? ' (※ 야간 밤샘주차 이력이 존재하므로 추가 현장 확인을 병행하세요.)' : ''}`,
+          guides: [
+            '해당 지번 전체 면적 대비 총 등록 차량 대수 및 주차 구획 확보 여부 산출',
+            '동일 나대지 지번 쪼개기 계약 및 편법 등록 여부 정밀 조사',
+            '타 시군 등록 차량의 경우 해당 관할 지자체와 정보 공유 및 협조 요청'
+          ],
+          badgeCls: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+          boxCls: 'border-blue-300 dark:border-blue-800/80 bg-blue-50/80 dark:bg-blue-950/40',
+          titleCls: 'text-blue-700 dark:text-blue-300',
+          pctCls: 'text-blue-600 dark:text-blue-400',
+          barCls: 'bg-blue-500'
+        };
+      } else {
+        // 일반 관리군
+        result = {
+          tier: '일반 관리군',
+          title: hasHistory ? '일반 관리군 (민원 유의)' : '일반 관리군 (적정)',
+          percent: hasHistory ? 35 : 15,
+          subtitle: hasHistory ? '적정 차고지 등록 상태이나 야간 단속·민원 이력 발생' : '고위험 분류 기준에 해당하지 않는 일반 관리 대상',
+          reason: `관내 적정 차고지[${region}]에 등록된 차량으로 1~3등급 고위험군에 해당하지 않습니다.${hasHistory ? ' 다만, 야간 밤샘주차 단속·민원 이력이 확인되어 계도 및 일반 단속 관리가 필요합니다.' : ''}`,
+          guides: hasHistory
+            ? [
+                '등록된 적정 차고지 이용 안내 및 야간 밤샘주차 재발 방지 계도',
+                '반복 민원 발생 시 일반 야간 단속 일정에 포함하여 현장 확인'
+              ]
+            : [
+                '정기 차고지 일제 점검 주기에 따른 일반 관리 유지',
+                '향후 차고지 변경(관외 원거리·나대지 이전 등) 시 자동 재분류'
+              ],
+          badgeCls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
+          boxCls: 'border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/60 dark:bg-emerald-950/30',
+          titleCls: 'text-emerald-700 dark:text-emerald-300',
+          pctCls: 'text-emerald-600 dark:text-emerald-400',
+          barCls: 'bg-emerald-500'
+        };
+      }
+
+      // UI 반영
+      const badgeEl = document.getElementById('simResultBadge');
+      badgeEl.className = `px-3 py-1 rounded-full text-xs font-extrabold ${result.badgeCls}`;
+      badgeEl.textContent = result.tier;
+
+      const boxEl = document.getElementById('simResultBox');
+      boxEl.className = `p-5 rounded-2xl border-2 transition-all ${result.boxCls}`;
+
+      const titleEl = document.getElementById('simResultTitle');
+      titleEl.className = `text-2xl font-black ${result.titleCls}`;
+      titleEl.textContent = result.title;
+
+      const pctEl = document.getElementById('simRiskPercent');
+      pctEl.className = `text-lg font-extrabold ${result.pctCls}`;
+      pctEl.textContent = `위험도 ${result.percent}%`;
+
+      const barEl = document.getElementById('simRiskBar');
+      barEl.className = `h-full rounded-full transition-all duration-500 ${result.barCls}`;
+      barEl.style.width = `${result.percent}%`;
+
+      document.getElementById('simResultSubtitle').textContent = result.subtitle;
+      document.getElementById('simReasonText').textContent = result.reason;
+
+      const guideList = document.getElementById('simGuideList');
+      guideList.innerHTML = result.guides.map((g, idx) => `
+        <li class="flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
+          <span>${g}</span>
+        </li>
+      `).join('');
+
+      lastSimResult = { plate, region, hasHistory, ...result };
+    }
+
+    function initSimulator() {
+      populateSimRegions('remote');
+
+      document.querySelectorAll('input[name="simType"]').forEach((radio) => {
+        radio.addEventListener('change', (e) => {
+          populateSimRegions(e.target.value);
+          evaluateSimulator();
+        });
+      });
+
+      document.getElementById('simRegion').addEventListener('change', evaluateSimulator);
+      document.getElementById('simHistoryToggle').addEventListener('change', evaluateSimulator);
+      document.getElementById('simPlate').addEventListener('input', evaluateSimulator);
+
+      document.getElementById('btnCopyDirective').addEventListener('click', () => {
+        if (!lastSimResult) return;
+        const text = [
+          `[차고지 고위험군 현장 점검 지시서]`,
+          `- 대상 차량: ${lastSimResult.plate}`,
+          `- 최종 판정 등급: ${lastSimResult.tier} (위험도 ${lastSimResult.percent}%)`,
+          `- 등록 차고지: ${lastSimResult.region}`,
+          `- 야간 밤샘주차 단속·민원 이력: ${lastSimResult.hasHistory ? '있음 (교차 매칭)' : '없음'}`,
+          `- 판정 사유: ${lastSimResult.reason}`,
+          `- 권장 점검 및 행정조치:`,
+          ...lastSimResult.guides.map((g, i) => `  ${i + 1}. ${g}`)
+        ].join('\n');
+
+        copyToClipboard(text, '점검 지시서 텍스트가 클립보드에 복사되었습니다.');
+      });
+
+      evaluateSimulator();
+    }
+
+    /**
+     * =========================================================================
+     * 9. 탭 4: 현장 점검 체크리스트 & 보고서용 요약 텍스트 생성
+     * =========================================================================
+     */
+    function renderChecklist() {
+      const container = document.getElementById('checklistContainer');
+      container.innerHTML = CHECKLIST_GROUPS.map((group) => `
+        <div class="p-4 rounded-xl border ${group.bg}">
+          <div class="text-xs font-extrabold uppercase tracking-wider ${group.color} mb-2.5">${group.tier}</div>
+          <div class="space-y-2.5">
+            ${group.items.map((item) => `
+              <label class="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  id="${item.id}"
+                  class="action-checkbox mt-0.5 w-4 h-4 rounded accent-indigo-600 cursor-pointer shrink-0"
+                />
+                <span class="text-sm text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white transition-colors leading-snug">
+                  ${item.text}
+                </span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      document.querySelectorAll('.action-checkbox').forEach((chk) => {
+        chk.addEventListener('change', (e) => {
+          const span = e.target.nextElementSibling;
+          span.classList.toggle('line-through', e.target.checked);
+          span.classList.toggle('opacity-60', e.target.checked);
+          updateChecklistProgress();
+        });
+      });
+
+      updateChecklistProgress();
+    }
+
+    function updateChecklistProgress() {
+      const boxes = document.querySelectorAll('.action-checkbox');
+      const total = boxes.length;
+      const checked = Array.from(boxes).filter((b) => b.checked).length;
+      const pct = total === 0 ? 0 : Math.round((checked / total) * 100);
+
+      document.getElementById('checklistProgressText').textContent = `${checked} / ${total} 완료 (${pct}%)`;
+      document.getElementById('checklistProgressBar').style.width = `${pct}%`;
+    }
+
+    function getSummaryText(mode = 'detailed') {
+      if (mode === 'brief') {
+        return [
+          `[요약] 데이터 기반 고위험군 분류 및 우선순위 알고리즘`,
+          `• 전체 분석 대상: 차고지 등록차량 총 1,552대 (4단계 위험 등급 자동 분류)`,
+          `• 0순위(최우선): 1·2등급 중 야간 밤샘주차 단속·민원 교차 매칭 → 즉시 현장 확인 및 행정처분`,
+          `• 1등급(초고위험): 관외 원거리 차고지(747대 중 원거리 / 포천 137·여주 125대 등) → 허위·형식 계약 의심`,
+          `• 2등급(고위험): 관내 15개 읍면동 나대지 차고지(557대 / 화도 106·진건 75·진접 74·양정 66·수동 52대 등)`,
+          `• 3등급(중위험): 동일 지번 과다 중복·타 시군 점유 관외 차량(53대) → 쪼개기 등록 의심`
+        ].join('\n');
+      }
+
+      return [
+        `■ 데이터 기반 고위험군 분류 및 우선순위 알고리즘 분석 요약`,
+        `※ 전체 차고지 등록차량 1,552대를 4단계 위험 등급으로 자동 분류하여 행정 점검 효율 극대화`,
+        ``,
+        `1. 0순위 (최우선) | 대상 규모: 교차 매칭 산출`,
+        `   - 분류 기준: 1·2등급 대상 중 야간 밤샘주차 단속·민원 이력 차량`,
+        `   - 관리 타깃: 서류상 차고지를 두고 실제 주거지 도로변에 주차하는 확정적 위반 의심 차량`,
+        `   - 점검 목적: 즉시 현장 확인 및 행정처분`,
+        ``,
+        `2. 1등급 (초고위험) | 대상 규모: 747대 중 원거리 권역`,
+        `   - 분류 기준: 관외 원거리 차고지 등록 차량 (일일 출퇴근 불가 권역)`,
+        `   - 관리 타깃: 포천(137대), 여주(125대) 등 허위·형식 계약 의심군 (기타 관외 485대 포함 총 747대)`,
+        ``,
+        `3. 2등급 (고위험) | 대상 규모: 557대`,
+        `   - 분류 기준: 관내 15개 읍면동 '나대지' 차고지 등록 차량`,
+        `   - 관리 타깃: 화도읍(106대), 진건읍(75대), 진접읍(74대), 양정동(66대), 수동면(52대) 등 실주차 사각지대 (나머지 10개 읍면동 184대 포함)`,
+        ``,
+        `4. 3등급 (중위험) | 대상 규모: 53대 (관외 차량)`,
+        `   - 분류 기준: 동일 지번 과다 중복 등록·관외 차량 점유 건`,
+        `   - 관리 타깃: 동일 나대지 지번 '쪼개기 등록' 의심 건 등 관내 차고지 점유 타 시군 차량`
+      ].join('\n');
+    }
+
+    function updateSummaryPreview() {
+      document.getElementById('summaryPreviewTextarea').value = getSummaryText(currentSummaryMode);
+    }
+
+    function initActionTab() {
+      renderChecklist();
+      updateSummaryPreview();
+
+      document.getElementById('btnResetChecklist').addEventListener('click', () => {
+        document.querySelectorAll('.action-checkbox').forEach((chk) => {
+          chk.checked = false;
+          chk.nextElementSibling.classList.remove('line-through', 'opacity-60');
+        });
+        updateChecklistProgress();
+        showToast('체크리스트가 초기화되었습니다.');
+      });
+
+      const btnDetailed = document.getElementById('btnSummaryDetailed');
+      const btnBrief = document.getElementById('btnSummaryBrief');
+
+      btnDetailed.addEventListener('click', () => {
+        currentSummaryMode = 'detailed';
+        btnDetailed.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-indigo-600 text-white transition-all cursor-pointer';
+        btnBrief.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer';
+        updateSummaryPreview();
+      });
+
+      btnBrief.addEventListener('click', () => {
+        currentSummaryMode = 'brief';
+        btnBrief.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-indigo-600 text-white transition-all cursor-pointer';
+        btnDetailed.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer';
+        updateSummaryPreview();
+      });
+
+      document.getElementById('btnCopySummaryTab').addEventListener('click', () => {
+        copyToClipboard(getSummaryText(currentSummaryMode), '요약 보고서가 클립보드에 복사되었습니다.');
+      });
+    }
+
+    /**
+     * =========================================================================
+     * 10. 초기화 실행
+     * =========================================================================
+     */
+    window.addEventListener('DOMContentLoaded', () => {
+      // 시스템 다크 모드 초기 감지
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+      }
+      updateDarkModeUI();
+
+      // 헤더 버튼 이벤트
+      document.getElementById('btnDarkMode').addEventListener('click', toggleDarkMode);
+      document.getElementById('btnCopyHeaderReport').addEventListener('click', () => {
+        copyToClipboard(getSummaryText('detailed'), '전체 요약 리포트가 클립보드에 복사되었습니다.');
+      });
+
+      // 각 모듈 초기화
+      initTabs();
+      initTableControls();
+      initSimulator();
+      initActionTab();
+    });
+  </script>
+</body>
+</html>

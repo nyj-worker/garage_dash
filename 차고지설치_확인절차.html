@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>차고지 설치 확인 절차 안내 | 민원인·담당자 가이드</title>
+
+  <!-- Pretendard 웹폰트 로드 -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind 커스텀 설정 -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif'],
+          },
+          colors: {
+            toss: {
+              bg: '#F2F4F6',
+              darkBg: '#101013',
+              card: '#FFFFFF',
+              darkCard: '#1B1C20',
+              subCard: '#F9FAFB',
+              darkSubCard: '#25262C',
+              blue: '#3182F6',
+              indigo: '#4F46E5',
+              textPrimary: '#191F28',
+              textSecondary: '#4E5968',
+              textTertiary: '#8B95A1',
+            }
+          },
+          boxShadow: {
+            'bento': '0 2px 16px rgba(0, 0, 0, 0.04)',
+            'bento-hover': '0 8px 28px rgba(49, 130, 246, 0.08)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* 기본 폰트 및 스크롤바 정돈 */
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      word-break: keep-all;
+    }
+
+    /* 숫자 입력 스피너 제거 */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    /* 체크박스 애니메이션 */
+    .check-pop {
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .check-pop:active {
+      transform: scale(0.92);
+    }
+
+    /* 가로 스크롤 숨김 유틸리티 (모바일 탭바용) */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* 인쇄 최적화 스타일 */
+    @media print {
+      body {
+        background: #FFFFFF !important;
+        color: #111827 !important;
+        font-size: 11pt;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+      .bento-card {
+        box-shadow: none !important;
+        border: 1px solid #D1D5DB !important;
+        background: #FFFFFF !important;
+        break-inside: avoid;
+      }
+      .step-detail-card {
+        display: block !important;
+        opacity: 1 !important;
+        margin-bottom: 12px !important;
+        border: 1px solid #E5E7EB !important;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="bg-toss-bg text-toss-textPrimary dark:bg-toss-darkBg dark:text-gray-100 transition-colors duration-300 min-h-screen">
+  <nav class="dashboard-return no-print" aria-label="통합 대시보드 탐색"><a href="index.html">통합 대시보드로 돌아가기</a></nav>
+
+  <!-- 상단 고정 네비게이션 / 유틸리티 헤더 -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-white/80 dark:bg-[#1B1C20]/85 border-b border-gray-200/70 dark:border-gray-800 no-print">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-sm">
+          <i data-lucide="truck" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-sm font-bold tracking-tight text-gray-900 dark:text-white block leading-none">차고지 설치 확인 가이드</span>
+          <span class="text-[11px] text-gray-500 dark:text-gray-400 font-medium">화물·특수자동차 운송사업 민원 안내</span>
+        </div>
+      </div>
+
+      <!-- 우측 액션 버튼: 다크모드 & 인쇄하기 -->
+      <div class="flex items-center gap-2">
+        <button
+          id="themeToggleBtn"
+          type="button"
+          aria-label="다크모드 전환"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors"
+        >
+          <i id="themeIconSun" data-lucide="sun" class="w-4 h-4 hidden text-amber-400"></i>
+          <i id="themeIconMoon" data-lucide="moon" class="w-4 h-4 text-slate-600"></i>
+          <span class="hidden sm:inline" id="themeLabel">다크모드</span>
+        </button>
+
+        <button
+          id="printBtn"
+          type="button"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-all active:scale-95"
+        >
+          <i data-lucide="printer" class="w-4 h-4"></i>
+          <span>인쇄하기</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 컨테이너 -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8 sm:space-y-10">
+
+    <!-- 1. 히어로 타이틀 섹션 -->
+    <section class="space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/60">
+        <span class="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-pulse"></span>
+        <span class="text-xs font-semibold text-indigo-700 dark:text-indigo-300">민원인 · 담당자 한눈에 보는 표준 절차</span>
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
+        차고지 설치 확인 절차 안내
+      </h1>
+      <p class="text-sm sm:text-base text-toss-textSecondary dark:text-gray-400 max-w-2xl leading-relaxed">
+        영업용 화물차·특수차 차고지 등록 기준 및 차고지 유형별 구비서류, 행정 처리 절차를 쉽고 빠르게 확인하세요.
+      </p>
+    </section>
+
+    <!-- 2. 핵심 요약(유의 사항) & 내 차량 등록 대상 간편 확인기 (Bento Grid) -->
+    <section aria-label="유의 사항 및 등록 대상 확인" class="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-5">
+
+      <!-- 요약 카드 1: 등록 대상 기준 -->
+      <div class="md:col-span-5 bento-card bg-toss-card dark:bg-toss-darkCard rounded-3xl p-6 shadow-bento border border-gray-100 dark:border-gray-800/80 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold">
+              <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400"></i>
+              유의 사항 01
+            </span>
+            <span class="text-xs font-medium text-gray-400">등록 의무 기준</span>
+          </div>
+          <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">차고지 등록 대상 기준</h2>
+
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-100/80 dark:border-indigo-900/50">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-white dark:bg-gray-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-xs">
+                  <i data-lucide="package" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">영업용 화물차</p>
+                  <p class="text-sm font-bold text-gray-900 dark:text-white">적재량 1.5톤 이상</p>
+                </div>
+              </div>
+              <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-indigo-600 text-white">필수</span>
+            </div>
+
+            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-white dark:bg-gray-800 flex items-center justify-center text-slate-700 dark:text-slate-300 shadow-xs">
+                  <i data-lucide="wrench" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">특수차</p>
+                  <p class="text-sm font-bold text-gray-900 dark:text-white">총중량 3.5톤 이상</p>
+                </div>
+              </div>
+              <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-slate-700 dark:bg-slate-600 text-white">필수</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="mt-4 text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+          <i data-lucide="info" class="w-3.5 h-3.5 shrink-0 text-gray-400"></i>
+          기준 톤수 미만 차량은 차고지 설치 확인 대상에서 제외됩니다.
+        </p>
+      </div>
+
+      <!-- 요약 카드 2: 법정 처리기간 -->
+      <div class="md:col-span-3 bento-card bg-toss-card dark:bg-toss-darkCard rounded-3xl p-6 shadow-bento border border-gray-100 dark:border-gray-800/80 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
+              <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+              유의 사항 02
+            </span>
+          </div>
+          <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-2">법정 처리기간</h2>
+          <div class="my-4 p-4 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50/60 dark:from-emerald-950/40 dark:to-teal-950/30 border border-emerald-100 dark:border-emerald-900/50 text-center">
+            <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-300 block mb-1">접수일로부터</span>
+            <div class="flex items-baseline justify-center gap-1">
+              <span class="text-4xl sm:text-5xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">10</span>
+              <span class="text-lg font-bold text-emerald-800 dark:text-emerald-200">일</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+          서류 보완이 필요한 경우 보완 기간은 처리기간에 산입되지 않습니다.
+        </p>
+      </div>
+
+      <!-- 요약 카드 3: 내 차량 등록 대상 여부 간편 확인기 -->
+      <div class="md:col-span-4 bento-card bg-toss-card dark:bg-toss-darkCard rounded-3xl p-6 shadow-bento border border-indigo-100/80 dark:border-indigo-900/50 flex flex-col justify-between no-print">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-600 text-white text-xs font-bold">
+              <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
+              간편 확인기
+            </span>
+            <span class="text-[11px] font-medium text-indigo-600 dark:text-indigo-400">즉시 판별</span>
+          </div>
+          <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-1">내 차량 대상 여부 확인</h2>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">차종과 톤수를 입력하면 등록 대상 여부를 바로 알려드려요.</p>
+
+          <!-- 차종 선택 세그먼트 버튼 -->
+          <div class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-gray-100 dark:bg-gray-800 mb-3" role="group" aria-label="차종 선택">
+            <button
+              type="button"
+              id="calcTypeCargo"
+              data-vehicle-type="cargo"
+              class="calc-type-btn py-2 px-3 rounded-xl text-xs font-bold bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-300 shadow-xs transition-all"
+            >
+              영업용 화물차
+            </button>
+            <button
+              type="button"
+              id="calcTypeSpecial"
+              data-vehicle-type="special"
+              class="calc-type-btn py-2 px-3 rounded-xl text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-all"
+            >
+              특수차
+            </button>
+          </div>
+
+          <!-- 톤수 입력 필드 -->
+          <div class="relative mb-3">
+            <label for="tonnageInput" id="tonnageLabel" class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1">
+              최대 적재량 입력 (기준: 1.5톤 이상)
+            </label>
+            <div class="relative flex items-center">
+              <input
+                type="number"
+                id="tonnageInput"
+                step="0.1"
+                min="0"
+                placeholder="예: 1.5 또는 2.5"
+                class="w-full pl-3.5 pr-12 py-2.5 rounded-2xl bg-gray-50 dark:bg-gray-800/90 border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              />
+              <span class="absolute right-3.5 text-xs font-bold text-gray-400">톤(t)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 판별 결과 배너 -->
+        <div id="calcResultBox" class="p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800/70 border border-gray-200/80 dark:border-gray-700/70 transition-all">
+          <div class="flex items-center gap-2.5">
+            <div id="calcResultIcon" class="w-8 h-8 rounded-xl bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-300 shrink-0">
+              <i data-lucide="help-circle" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <p id="calcResultTitle" class="text-xs font-bold text-gray-700 dark:text-gray-200">톤수를 입력해 주세요</p>
+              <p id="calcResultDesc" class="text-[11px] text-gray-500 dark:text-gray-400">소수점 첫째 자리까지 입력 가능합니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 차고지 유형별 구비서류 인터랙티브 탭 & 준비물 체크리스트 -->
+    <section aria-labelledby="docsSectionTitle" class="bento-card bg-toss-card dark:bg-toss-darkCard rounded-3xl p-6 sm:p-8 shadow-bento border border-gray-100 dark:border-gray-800/80">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+        <div>
+          <div class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 mb-1.5">
+            <i data-lucide="folder-check" class="w-4 h-4"></i>
+            <span>구비서류 자가진단</span>
+          </div>
+          <h2 id="docsSectionTitle" class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+            차고지 유형별 구비서류 체크리스트
+          </h2>
+          <p class="text-xs sm:text-sm text-toss-textSecondary dark:text-gray-400 mt-1">
+            설치하려는 차고지 유형을 선택하고, 준비된 서류를 클릭하여 체크해 보세요.
+          </p>
+        </div>
+
+        <!-- 선택 유형 서류 목록 복사 & 초기화 버튼 -->
+        <div class="flex items-center gap-2 self-start sm:self-auto no-print">
+          <button
+            type="button"
+            id="copyChecklistBtn"
+            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 transition-colors"
+          >
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>목록 복사</span>
+          </button>
+          <button
+            type="button"
+            id="resetChecklistBtn"
+            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
+          >
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>초기화</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4가지 차고지 유형 탭 버튼 -->
+      <div
+        id="garageTabs"
+        role="tablist"
+        aria-label="차고지 유형 선택"
+        class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mb-6 no-print"
+      >
+        <!-- JS에서 탭 버튼 동적 렌더링 -->
+      </div>
+
+      <!-- 진행률 표시 바 영역 -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-toss-subCard dark:bg-toss-darkSubCard border border-gray-200/70 dark:border-gray-700/60 mb-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+          <div class="flex items-center gap-2">
+            <span id="currentGarageTitle" class="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
+              ① 개인땅(나대지)
+            </span>
+            <span id="currentGarageBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">
+              필수 5종
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="progressText" class="text-xs sm:text-sm font-extrabold text-indigo-600 dark:text-indigo-400">
+              5개 중 0개 준비 완료
+            </span>
+            <span id="progressPercent" class="text-xs font-bold px-2 py-0.5 rounded-full bg-gray-200/80 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+              0%
+            </span>
+          </div>
+        </div>
+
+        <!-- 진행 바 트랙 -->
+        <div class="w-full h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div
+            id="progressBarFill"
+            class="h-full bg-indigo-600 dark:bg-indigo-500 rounded-full transition-all duration-500 ease-out"
+            style="width: 0%"
+          ></div>
+        </div>
+
+        <!-- 모든 서류 준비 완료 시 축하/안내 메시지 -->
+        <div id="allReadyBanner" class="hidden mt-3 pt-3 border-t border-emerald-200/70 dark:border-emerald-800/50 flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+          <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400"></i>
+          <span>선택하신 차고지 유형의 모든 구비서류가 준비되었습니다! 관할 기관에 방문하여 접수하실 수 있습니다.</span>
+        </div>
+      </div>
+
+      <!-- 구비서류 체크리스트 아이템 컨테이너 -->
+      <div id="checklistContainer" class="space-y-3" role="region" aria-live="polite">
+        <!-- JS에서 체크리스트 항목 렌더링 -->
+      </div>
+
+      <!-- 하단 유형별 핵심 팁 안내 -->
+      <div id="garageTipBox" class="mt-5 p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-800/50 flex items-start gap-3">
+        <i data-lucide="lightbulb" class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"></i>
+        <div class="text-xs sm:text-sm text-amber-900 dark:text-amber-200 leading-relaxed" id="garageTipText">
+          <!-- JS에서 팁 내용 업데이트 -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 5단계 처리 절차 인터랙티브 타임라인 / 스텝 뷰 -->
+    <section aria-labelledby="processSectionTitle" class="bento-card bg-toss-card dark:bg-toss-darkCard rounded-3xl p-6 sm:p-8 shadow-bento border border-gray-100 dark:border-gray-800/80">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+        <div>
+          <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1.5">
+            <i data-lucide="git-commit-horizontal" class="w-4 h-4"></i>
+            <span>행정 처리 프로세스</span>
+          </div>
+          <h2 id="processSectionTitle" class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+            차고지 설치 확인 5단계 처리 절차
+          </h2>
+          <p class="text-xs sm:text-sm text-toss-textSecondary dark:text-gray-400 mt-1">
+            각 단계를 클릭하여 세부 검토 기준을 확인하거나 전체 보기로 한눈에 살펴보세요.
+          </p>
+        </div>
+
+        <!-- 보기 모드 전환 버튼 (단계별 집중 보기 vs 전체 한눈에 보기) -->
+        <div class="inline-flex p-1 rounded-2xl bg-gray-100 dark:bg-gray-800 self-start sm:self-auto no-print" role="group" aria-label="절차 보기 모드">
+          <button
+            type="button"
+            id="viewModeAllBtn"
+            class="px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-300 shadow-xs transition-all"
+          >
+            전체 한눈에 보기
+          </button>
+          <button
+            type="button"
+            id="viewModeSingleBtn"
+            class="px-3.5 py-2 rounded-xl text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-all"
+          >
+            단계별 집중 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 가로형 스텝 타임라인 흐름도 -->
+      <div class="mb-6 overflow-x-auto no-scrollbar pb-2">
+        <div id="stepperFlow" class="flex items-center justify-between min-w-[640px] gap-2">
+          <!-- JS에서 1~5단계 스텝 노드 렌더링 -->
+        </div>
+      </div>
+
+      <!-- 단계별 상세 카드 리스트 -->
+      <div id="stepsDetailContainer" class="space-y-3.5">
+        <!-- JS에서 상세 단계 카드 렌더링 -->
+      </div>
+    </section>
+
+    <!-- 푸터 안내 -->
+    <footer class="text-center py-4 text-xs text-gray-400 dark:text-gray-500 space-y-1">
+      <p>본 안내는「차고지 설치 확인 절차」표준 민원 안내서를 바탕으로 제작되었습니다.</p>
+      <p>세부 서식(별지 제1호서식 등) 및 관할 구역 문의는 해당 시·군·구청 교통행정과(화물운송 담당부서)로 문의하시기 바랍니다.</p>
+    </footer>
+  </main>
+
+  <!-- 커스텀 토스트 메시지 (alert() 대체) -->
+  <div
+    id="toastMessage"
+    role="status"
+    aria-live="polite"
+    class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-3 transition-all duration-300"
+  >
+    <div class="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-gray-900/95 dark:bg-white/95 text-white dark:text-gray-900 shadow-xl text-xs sm:text-sm font-semibold backdrop-blur-sm">
+      <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 dark:text-emerald-600 shrink-0"></i>
+      <span id="toastText">알림 메시지</span>
+    </div>
+  </div>
+
+  <!-- 인터랙티브 로직 스크립트 -->
+  <script>
+    /**
+     * 1. 데이터 정의 (첨부 PDF 원문 내용 100% 반영)
+     */
+    const GARAGE_TYPES = [
+      {
+        id: 'private_land',
+        number: '①',
+        shortName: '개인땅(나대지)',
+        fullName: '① 개인땅(나대지)',
+        icon: 'land-plot',
+        tip: '신청인 본인 소유의 토지(자기땅)인 경우 <strong>② 차고지사용승낙서</strong>는 제출하지 않으셔도 됩니다. 타인 소유 토지일 때는 반드시 토지주의 인감도장이 날인된 승낙서와 인감증명서를 함께 제출해야 합니다.',
+        docs: [
+          {
+            id: 'pl_1',
+            title: '차고지설치확인신청서',
+            sub: '민원서식 (별지 제1호서식)',
+            badge: '필수 서식',
+            badgeColor: 'indigo'
+          },
+          {
+            id: 'pl_2',
+            title: '차고지사용승낙서 (토지주의 인감도장 필수)',
+            sub: '타인 소유 토지 임차·사용 시 제출',
+            badge: '자기땅일 때는 필요없음',
+            badgeColor: 'amber',
+            isOptionalSelf: true
+          },
+          {
+            id: 'pl_3',
+            title: '토지주의 인감증명서',
+            sub: '사용승낙서에 날인된 인감 확인용',
+            badge: '인감 확인',
+            badgeColor: 'slate'
+          },
+          {
+            id: 'pl_4',
+            title: '토지대장',
+            sub: '토지 지목 및 면적 확인용',
+            badge: '공부 서류',
+            badgeColor: 'slate'
+          },
+          {
+            id: 'pl_5',
+            title: '해당 토지에 주차된 차량의 앞면, 옆면 사진 총 2장',
+            sub: '실제 주차 상태 및 번호판 식별 가능하도록 촬영',
+            badge: '현장 사진 2매',
+            badgeColor: 'emerald'
+          }
+        ]
+      },
+      {
+        id: 'apartment',
+        number: '②',
+        shortName: '거주지 아파트',
+        fullName: '② 거주지 아파트',
+        icon: 'building-2',
+        tip: '거주 중인 아파트 단지 내 주차장을 차고지로 등록할 때는 <strong>아파트 관리사무소 직인</strong>이 반드시 날인된 승낙서와 단지 내 주차 위치를 표시한 도면(또는 사진)이 필요합니다.',
+        docs: [
+          {
+            id: 'apt_1',
+            title: '차고지설치확인신청서',
+            sub: '민원서식 (별지 제1호서식)',
+            badge: '필수 서식',
+            badgeColor: 'indigo'
+          },
+          {
+            id: 'apt_2',
+            title: '아파트 관리실 직인이 찍힌 승낙서',
+            sub: '관리사무소장 직인 날인 필수',
+            badge: '관리실 직인 필수',
+            badgeColor: 'amber'
+          },
+          {
+            id: 'apt_3',
+            title: '아파트 내 차량이 어디에 주차되는지 알 수 있는 지도 또는 사진',
+            sub: '단지 배치도 주차 위치 표기 또는 주차 구역 사진',
+            badge: '위치 증빙',
+            badgeColor: 'emerald'
+          }
+        ]
+      },
+      {
+        id: 'villa',
+        number: '③',
+        shortName: '빌라 등 다세대주택',
+        fullName: '③ 빌라 등 다세대주택',
+        icon: 'home',
+        tip: '빌라·연립·다세대주택의 부설주차장은 구분소유자(입주민) 공유 지분이므로 <strong>다세대 주택 구성원 100% 동의서명서</strong>가 반드시 확보되어야 합니다.',
+        docs: [
+          {
+            id: 'villa_1',
+            title: '차고지설치확인신청서',
+            sub: '민원서식 (별지 제1호서식)',
+            badge: '필수 서식',
+            badgeColor: 'indigo'
+          },
+          {
+            id: 'villa_2',
+            title: '차고지사용승낙서 (다세대 주택 구성원 100% 동의서명서)',
+            sub: '전체 세대 구성원 전원 동의 서명 필수',
+            badge: '100% 동의서명서',
+            badgeColor: 'amber'
+          },
+          {
+            id: 'villa_3',
+            title: '해당 토지에 주차된 차량의 앞면, 옆면 사진 총 2장',
+            sub: '해당 주차 구획 내 차량 앞면·옆면 각 1장씩 총 2장',
+            badge: '현장 사진 2매',
+            badgeColor: 'emerald'
+          }
+        ]
+      },
+      {
+        id: 'off_street',
+        number: '④',
+        shortName: '노외주차장',
+        fullName: '④ 노외주차장',
+        icon: 'square-parking',
+        tip: '노외주차장을 임차하여 차고지로 사용하는 경우 <strong>임대차계약서</strong>를 제출해야 하며, 서류 검토 시 임대차 기간(통상 1년 이상) 및 최저 보유차고 면적 충족 여부를 확인합니다.',
+        docs: [
+          {
+            id: 'off_1',
+            title: '차고지설치확인신청서',
+            sub: '민원서식 (별지 제1호서식)',
+            badge: '필수 서식',
+            badgeColor: 'indigo'
+          },
+          {
+            id: 'off_2',
+            title: '임대차계약서',
+            sub: '차고지 사용 목적 및 임대차 기간(통상 1년 이상) 명시',
+            badge: '계약 서류',
+            badgeColor: 'emerald'
+          }
+        ]
+      }
+    ];
+
+    const PROCESS_STEPS = [
+      {
+        step: 1,
+        shortTitle: '민원 접수',
+        fullTitle: '1. 민원 접수',
+        icon: 'file-plus-2',
+        summary: '방문을 통해 별지 제1호서식 및 첨부서류 접수',
+        details: [
+          '관할 행정기관(시·군·구청 담당 부서) 방문을 통해 <strong>별지 제1호서식(차고지 설치 확인 신청서)</strong> 및 차고지 유형별 첨부서류를 접수합니다.'
+        ],
+        tag: '민원인 방문 신청'
+      },
+      {
+        step: 2,
+        shortTitle: '서류 및 결격 검토',
+        fullTitle: '2. 서류 및 면적 기준 검토',
+        icon: 'file-search',
+        summary: '차종별 최저 보유차고 면적 충족 여부, 임대차 기간(통상 1년 이상), 소유권·사용권 적정성 확인',
+        details: [
+          '<strong>차종별 최저 보유차고 면적 충족 여부</strong>를 확인합니다.',
+          '<strong>임대차 기간(통상 1년 이상)</strong> 요건 충족 여부를 검토합니다.',
+          '토지·주차장의 <strong>소유권 및 사용권 적정성</strong>(인감·직인·동의서 등)을 확인합니다.'
+        ],
+        tag: '서류·면적 적격 심사'
+      },
+      {
+        step: 3,
+        shortTitle: '행정정보공동이용 열람 등',
+        fullTitle: '3. 행정정보공동이용 열람',
+        icon: 'database',
+        summary: '담당 공무원의 행정정보공동이용망 열람을 통한 공부 및 공부상 권리·용도 확인',
+        subItems: [
+          {
+            label: '토지등기부등본 및 토지대장',
+            desc: '소유주, 면적 등 확인'
+          },
+          {
+            label: '주민등록 등초본',
+            desc: '관할 내 주소지 확인'
+          },
+          {
+            label: '토지이용계획정보',
+            desc: '용도지역 확인'
+          }
+        ],
+        tag: '공부 및 용도지역 대조'
+      },
+      {
+        step: 4,
+        shortTitle: '현장 확인',
+        fullTitle: '4. 현장 확인',
+        icon: 'map-pin-check',
+        summary: '진입로 확보 여부, 실제 차량 주차 가능 상태 등 현지 실사',
+        details: [
+          '담당자가 차고지 현장을 방문하여 <strong>진입로 확보 여부</strong>를 점검합니다.',
+          '<strong>실제 차량 주차 가능 상태</strong> 및 제출된 사진·도면과의 일치 여부 등 현지 실사를 진행합니다.'
+        ],
+        tag: '현지 실사 진행'
+      },
+      {
+        step: 5,
+        shortTitle: '확인서 발급',
+        fullTitle: '5. 확인서 발급',
+        icon: 'award',
+        summary: '적합 시 별지 제2호서식(차고지 설치 확인서) 발급',
+        details: [
+          '서류 검토 및 현장 확인 결과 적합할 경우 <strong>별지 제2호서식(차고지 설치 확인서)</strong>을 발급합니다.',
+          '<strong>타 관할 운송사업자</strong>인 경우 허가 관할 기관에 차고지 설치 확인 결과를 통보합니다.'
+        ],
+        tag: '최종 처리 완료 (10일 이내)'
+      }
+    ];
+
+    /**
+     * 2. 애플리케이션 상태 관리
+     */
+    const state = {
+      selectedVehicleType: 'cargo', // 'cargo' | 'special'
+      activeGarageId: 'private_land',
+      checkedDocs: {}, // { docId: boolean }
+      activeStep: 1,
+      stepViewMode: 'all', // 'all' | 'single'
+      isDark: false
+    };
+
+    // 로컬 스토리지 안전 로드
+    function loadSavedState() {
+      try {
+        const savedChecks = localStorage.getItem('garage_guide_checks_v1');
+        if (savedChecks) {
+          state.checkedDocs = JSON.parse(savedChecks);
+        }
+        const savedTheme = localStorage.getItem('garage_guide_theme_v1');
+        if (savedTheme === 'dark') {
+          state.isDark = true;
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {
+        // 샌드박스 환경 등에서 localStorage 접근 제한 시 무시
+      }
+    }
+
+    function saveCheckedState() {
+      try {
+        localStorage.setItem('garage_guide_checks_v1', JSON.stringify(state.checkedDocs));
+      } catch (e) {
+        // 무시
+      }
+    }
+
+    /**
+     * 3. 토스트 알림 유틸리티 (alert 대체)
+     */
+    let toastTimer = null;
+    function showToast(message) {
+      const toastEl = document.getElementById('toastMessage');
+      const toastText = document.getElementById('toastText');
+      if (!toastEl || !toastText) return;
+
+      toastText.textContent = message;
+      toastEl.classList.remove('opacity-0', 'translate-y-3');
+      toastEl.classList.add('opacity-100', 'translate-y-0');
+
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toastEl.classList.remove('opacity-100', 'translate-y-0');
+        toastEl.classList.add('opacity-0', 'translate-y-3');
+      }, 2600);
+    }
+
+    /**
+     * 4. 다크모드 & 인쇄 제어
+     */
+    function updateThemeUI() {
+      const sunIcon = document.getElementById('themeIconSun');
+      const moonIcon = document.getElementById('themeIconMoon');
+      const label = document.getElementById('themeLabel');
+
+      if (state.isDark) {
+        document.documentElement.classList.add('dark');
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+        label.textContent = '라이트모드';
+      } else {
+        document.documentElement.classList.remove('dark');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+        label.textContent = '다크모드';
+      }
+    }
+
+    function setupHeaderActions() {
+      const themeBtn = document.getElementById('themeToggleBtn');
+      const printBtn = document.getElementById('printBtn');
+
+      themeBtn.addEventListener('click', () => {
+        state.isDark = !state.isDark;
+        updateThemeUI();
+        try {
+          localStorage.setItem('garage_guide_theme_v1', state.isDark ? 'dark' : 'light');
+        } catch (e) {}
+      });
+
+      printBtn.addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    /**
+     * 5. 내 차량 등록 대상 여부 간편 확인기 로직
+     */
+    function evaluateVehicleRegistration() {
+      const inputEl = document.getElementById('tonnageInput');
+      const resultBox = document.getElementById('calcResultBox');
+      const resultIcon = document.getElementById('calcResultIcon');
+      const resultTitle = document.getElementById('calcResultTitle');
+      const resultDesc = document.getElementById('calcResultDesc');
+
+      const rawVal = inputEl.value.trim();
+      const val = parseFloat(rawVal);
+
+      if (rawVal === '' || isNaN(val) || val <= 0) {
+        resultBox.className = 'p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800/70 border border-gray-200/80 dark:border-gray-700/70 transition-all';
+        resultIcon.className = 'w-8 h-8 rounded-xl bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-300 shrink-0';
+        resultIcon.innerHTML = '<i data-lucide="help-circle" class="w-4 h-4"></i>';
+        resultTitle.className = 'text-xs font-bold text-gray-700 dark:text-gray-200';
+        resultTitle.textContent = '톤수를 입력해 주세요';
+        resultDesc.textContent = '소수점 첫째 자리까지 입력 가능합니다.';
+        lucide.createIcons();
+        return;
+      }
+
+      const isCargo = state.selectedVehicleType === 'cargo';
+      const threshold = isCargo ? 1.5 : 3.5;
+      const metricName = isCargo ? '적재량' : '총중량';
+      const vehicleName = isCargo ? '영업용 화물차' : '특수차';
+
+      if (val >= threshold) {
+        resultBox.className = 'p-3.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800/70 transition-all';
+        resultIcon.className = 'w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white shrink-0';
+        resultIcon.innerHTML = '<i data-lucide="check-circle-2" class="w-4 h-4"></i>';
+        resultTitle.className = 'text-xs font-extrabold text-indigo-700 dark:text-indigo-300';
+        resultTitle.textContent = '차고지 등록 대상 차량입니다';
+        resultDesc.textContent = `${vehicleName} ${metricName} ${val}톤 (기준 ${threshold}톤 이상 충족)`;
+      } else {
+        resultBox.className = 'p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/70 transition-all';
+        resultIcon.className = 'w-8 h-8 rounded-xl bg-emerald-600 flex items-center justify-center text-white shrink-0';
+        resultIcon.innerHTML = '<i data-lucide="shield-check" class="w-4 h-4"></i>';
+        resultTitle.className = 'text-xs font-extrabold text-emerald-700 dark:text-emerald-300';
+        resultTitle.textContent = '차고지 등록 대상이 아닙니다';
+        resultDesc.textContent = `${vehicleName} ${metricName} ${val}톤 (기준 ${threshold}톤 미만)`;
+      }
+      lucide.createIcons();
+    }
+
+    function setupCalculator() {
+      const typeBtns = document.querySelectorAll('.calc-type-btn');
+      const tonnageLabel = document.getElementById('tonnageLabel');
+      const tonnageInput = document.getElementById('tonnageInput');
+
+      typeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.selectedVehicleType = btn.dataset.vehicleType;
+
+          typeBtns.forEach(b => {
+            if (b.dataset.vehicleType === state.selectedVehicleType) {
+              b.className = 'calc-type-btn py-2 px-3 rounded-xl text-xs font-bold bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-300 shadow-xs transition-all';
+            } else {
+              b.className = 'calc-type-btn py-2 px-3 rounded-xl text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-all';
+            }
+          });
+
+          if (state.selectedVehicleType === 'cargo') {
+            tonnageLabel.textContent = '최대 적재량 입력 (기준: 1.5톤 이상)';
+            tonnageInput.placeholder = '예: 1.5 또는 2.5';
+          } else {
+            tonnageLabel.textContent = '차량 총중량 입력 (기준: 3.5톤 이상)';
+            tonnageInput.placeholder = '예: 3.5 또는 5.0';
+          }
+
+          evaluateVehicleRegistration();
+        });
+      });
+
+      tonnageInput.addEventListener('input', evaluateVehicleRegistration);
+    }
+
+    /**
+     * 6. 차고지 유형별 구비서류 탭 & 체크리스트 렌더링
+     */
+    function getBadgeClasses(color) {
+      switch (color) {
+        case 'amber':
+          return 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-800/70';
+        case 'emerald':
+          return 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-800/70';
+        case 'indigo':
+          return 'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-950/70 dark:text-indigo-300 dark:border-indigo-800/70';
+        default:
+          return 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
+      }
+    }
+
+    function renderGarageTabs() {
+      const tabsContainer = document.getElementById('garageTabs');
+      tabsContainer.innerHTML = '';
+
+      GARAGE_TYPES.forEach(type => {
+        const isActive = type.id === state.activeGarageId;
+        const checkedCount = type.docs.filter(d => !!state.checkedDocs[d.id]).length;
+        const totalCount = type.docs.length;
+        const isAllDone = checkedCount === totalCount;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.role = 'tab';
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        btn.className = isActive
+          ? 'flex flex-col items-start justify-between p-3.5 sm:p-4 rounded-2xl bg-indigo-600 text-white shadow-md shadow-indigo-600/20 border border-indigo-600 transition-all text-left'
+          : 'flex flex-col items-start justify-between p-3.5 sm:p-4 rounded-2xl bg-gray-50 hover:bg-gray-100 dark:bg-gray-800/70 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200/80 dark:border-gray-700/70 transition-all text-left';
+
+        btn.innerHTML = `
+          <div class="w-full flex items-center justify-between mb-2">
+            <span class="inline-flex items-center justify-center w-7 h-7 rounded-xl ${isActive ? 'bg-white/20 text-white' : 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-2xs'}">
+              <i data-lucide="${type.icon}" class="w-4 h-4"></i>
+            </span>
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full ${
+              isActive
+                ? 'bg-white/20 text-white'
+                : isAllDone
+                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300'
+                : 'bg-gray-200/80 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+            }">
+              ${checkedCount}/${totalCount}
+            </span>
+          </div>
+          <span class="text-xs sm:text-sm font-bold tracking-tight leading-snug">
+            ${type.fullName}
+          </span>
+        `;
+
+        btn.addEventListener('click', () => {
+          state.activeGarageId = type.id;
+          renderGarageTabs();
+          renderChecklist();
+        });
+
+        tabsContainer.appendChild(btn);
+      });
+
+      lucide.createIcons();
+    }
+
+    function renderChecklist() {
+      const currentType = GARAGE_TYPES.find(t => t.id === state.activeGarageId) || GARAGE_TYPES[0];
+      const container = document.getElementById('checklistContainer');
+      const titleEl = document.getElementById('currentGarageTitle');
+      const badgeEl = document.getElementById('currentGarageBadge');
+      const progressTextEl = document.getElementById('progressText');
+      const progressPercentEl = document.getElementById('progressPercent');
+      const progressBarFill = document.getElementById('progressBarFill');
+      const allReadyBanner = document.getElementById('allReadyBanner');
+      const tipTextEl = document.getElementById('garageTipText');
+
+      titleEl.textContent = currentType.fullName;
+      badgeEl.textContent = `구비서류 ${currentType.docs.length}종`;
+      tipTextEl.innerHTML = currentType.tip;
+
+      const totalCount = currentType.docs.length;
+      const checkedCount = currentType.docs.filter(d => !!state.checkedDocs[d.id]).length;
+      const percent = Math.round((checkedCount / totalCount) * 100);
+
+      progressTextEl.textContent = `${totalCount}개 중 ${checkedCount}개 준비 완료`;
+      progressPercentEl.textContent = `${percent}%`;
+      progressBarFill.style.width = `${percent}%`;
+
+      if (checkedCount === totalCount) {
+        progressBarFill.classList.remove('bg-indigo-600', 'dark:bg-indigo-500');
+        progressBarFill.classList.add('bg-emerald-500');
+        allReadyBanner.classList.remove('hidden');
+      } else {
+        progressBarFill.classList.remove('bg-emerald-500');
+        progressBarFill.classList.add('bg-indigo-600', 'dark:bg-indigo-500');
+        allReadyBanner.classList.add('hidden');
+      }
+
+      container.innerHTML = '';
+
+      currentType.docs.forEach((doc, idx) => {
+        const isChecked = !!state.checkedDocs[doc.id];
+        const circledNum = ['①', '②', '③', '④', '⑤'][idx] || `${idx + 1}.`;
+
+        const itemBtn = document.createElement('button');
+        itemBtn.type = 'button';
+        itemBtn.setAttribute('aria-pressed', isChecked ? 'true' : 'false');
+        itemBtn.className = isChecked
+          ? 'w-full group flex items-start sm:items-center justify-between gap-3 p-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border-2 border-indigo-500/80 dark:border-indigo-500/70 transition-all text-left'
+          : 'w-full group flex items-start sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white dark:bg-gray-800/40 hover:bg-gray-50 dark:hover:bg-gray-800/80 border border-gray-200 dark:border-gray-700/80 transition-all text-left';
+
+        itemBtn.innerHTML = `
+          <div class="flex items-start sm:items-center gap-3.5 min-w-0">
+            <!-- 커스텀 체크박스 -->
+            <div class="check-pop mt-0.5 sm:mt-0 w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border-2 ${
+              isChecked
+                ? 'bg-indigo-600 border-indigo-600 text-white'
+                : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 group-hover:border-indigo-400'
+            }">
+              ${isChecked ? '<i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>' : ''}
+            </div>
+
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-sm sm:text-base font-bold ${
+                  isChecked
+                    ? 'text-indigo-950 dark:text-indigo-100 line-through decoration-indigo-400/70'
+                    : 'text-gray-900 dark:text-white'
+                }">
+                  ${circledNum} ${doc.title}
+                </span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold border ${getBadgeClasses(doc.badgeColor)}">
+                  ${doc.isOptionalSelf ? '※ ' : ''}${doc.badge}
+                </span>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                ${doc.sub}
+              </p>
+            </div>
+          </div>
+
+          <span class="hidden sm:inline-flex items-center text-xs font-semibold shrink-0 px-2.5 py-1 rounded-lg ${
+            isChecked
+              ? 'bg-indigo-600 text-white'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 group-hover:text-gray-600'
+          }">
+            ${isChecked ? '준비 완료' : '미확인'}
+          </span>
+        `;
+
+        itemBtn.addEventListener('click', () => {
+          state.checkedDocs[doc.id] = !state.checkedDocs[doc.id];
+          saveCheckedState();
+          renderGarageTabs();
+          renderChecklist();
+
+          const nowCheckedCount = currentType.docs.filter(d => !!state.checkedDocs[d.id]).length;
+          if (state.checkedDocs[doc.id] && nowCheckedCount === currentType.docs.length) {
+            showToast(`${currentType.shortName} 구비서류가 모두 준비되었습니다!`);
+          }
+        });
+
+        container.appendChild(itemBtn);
+      });
+
+      lucide.createIcons();
+    }
+
+    function setupChecklistActions() {
+      const resetBtn = document.getElementById('resetChecklistBtn');
+      const copyBtn = document.getElementById('copyChecklistBtn');
+
+      resetBtn.addEventListener('click', () => {
+        const currentType = GARAGE_TYPES.find(t => t.id === state.activeGarageId);
+        if (!currentType) return;
+        currentType.docs.forEach(d => {
+          delete state.checkedDocs[d.id];
+        });
+        saveCheckedState();
+        renderGarageTabs();
+        renderChecklist();
+        showToast(`${currentType.shortName} 체크리스트가 초기화되었습니다.`);
+      });
+
+      copyBtn.addEventListener('click', () => {
+        const currentType = GARAGE_TYPES.find(t => t.id === state.activeGarageId);
+        if (!currentType) return;
+
+        const lines = [
+          `[차고지 설치 확인 구비서류 - ${currentType.shortName}]`,
+          ...currentType.docs.map((d, idx) => {
+            const mark = state.checkedDocs[d.id] ? '[완료]' : '[미비]';
+            return `${idx + 1}. ${mark} ${d.title}`;
+          }),
+          `※ 법정 처리기간: 10일`
+        ];
+        const textToCopy = lines.join('\n');
+
+        // iFrame 안전 클립보드 복사
+        const tempTextarea = document.createElement('textarea');
+        tempTextarea.value = textToCopy;
+        tempTextarea.style.position = 'fixed';
+        tempTextarea.style.left = '-9999px';
+        document.body.appendChild(tempTextarea);
+        tempTextarea.select();
+        try {
+          document.execCommand('copy');
+          showToast('구비서류 목록이 클립보드에 복사되었습니다.');
+        } catch (err) {
+          showToast('복사에 실패했습니다. 직접 선택해 복사해 주세요.');
+        }
+        document.body.removeChild(tempTextarea);
+      });
+    }
+
+    /**
+     * 7. 5단계 처리 절차 인터랙티브 타임라인 / 스텝 뷰 렌더링
+     */
+    function renderProcessSteps() {
+      const stepperFlow = document.getElementById('stepperFlow');
+      const detailContainer = document.getElementById('stepsDetailContainer');
+
+      stepperFlow.innerHTML = '';
+      detailContainer.innerHTML = '';
+
+      PROCESS_STEPS.forEach((item, index) => {
+        const isSelected = item.step === state.activeStep;
+
+        // 1) 상단 가로 타임라인 노드
+        const nodeBtn = document.createElement('button');
+        nodeBtn.type = 'button';
+        nodeBtn.className = `flex-1 flex flex-col items-center p-3 rounded-2xl border transition-all ${
+          isSelected
+            ? 'bg-indigo-50/90 dark:bg-indigo-950/50 border-indigo-500 shadow-xs'
+            : 'bg-gray-50/80 hover:bg-gray-100 dark:bg-gray-800/50 dark:hover:bg-gray-800 border-gray-200/80 dark:border-gray-700/70'
+        }`;
+
+        nodeBtn.innerHTML = `
+          <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold mb-1.5 ${
+            isSelected
+              ? 'bg-indigo-600 text-white shadow-sm'
+              : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600'
+          }">
+            ${item.step}
+          </div>
+          <span class="text-xs font-bold text-center leading-tight ${
+            isSelected ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300'
+          }">
+            ${item.shortTitle}
+          </span>
+        `;
+
+        nodeBtn.addEventListener('click', () => {
+          state.activeStep = item.step;
+          renderProcessSteps();
+        });
+
+        stepperFlow.appendChild(nodeBtn);
+
+        // 화살표 연결선
+        if (index < PROCESS_STEPS.length - 1) {
+          const arrowDiv = document.createElement('div');
+          arrowDiv.className = 'text-gray-300 dark:text-gray-600 shrink-0';
+          arrowDiv.innerHTML = '<i data-lucide="chevron-right" class="w-4 h-4"></i>';
+          stepperFlow.appendChild(arrowDiv);
+        }
+
+        // 2) 하단 상세 카드
+        const shouldShow = state.stepViewMode === 'all' || isSelected;
+        const card = document.createElement('div');
+        card.className = `step-detail-card rounded-2xl p-5 border transition-all cursor-pointer ${
+          shouldShow ? 'block' : 'hidden'
+        } ${
+          isSelected
+            ? 'bg-indigo-50/40 dark:bg-indigo-950/25 border-indigo-400 dark:border-indigo-600 shadow-xs'
+            : 'bg-toss-subCard dark:bg-toss-darkSubCard border-gray-200/70 dark:border-gray-700/70 hover:border-gray-300 dark:hover:border-gray-600'
+        }`;
+
+        // 3단계 행정정보공동이용 열람 세부 항목 HTML
+        let subItemsHtml = '';
+        if (item.subItems && item.subItems.length > 0) {
+          subItemsHtml = `
+            <div class="mt-3.5 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              ${item.subItems
+                .map(
+                  sub => `
+                  <div class="p-3 rounded-xl bg-white dark:bg-gray-800/90 border border-indigo-100 dark:border-gray-700">
+                    <div class="flex items-center gap-1.5 text-xs font-bold text-indigo-700 dark:text-indigo-300 mb-1">
+                      <i data-lucide="file-check-2" class="w-3.5 h-3.5 shrink-0"></i>
+                      <span>${sub.label}</span>
+                    </div>
+                    <p class="text-xs text-gray-600 dark:text-gray-300">${sub.desc}</p>
+                  </div>
+                `
+                )
+                .join('')}
+            </div>
+          `;
+        }
+
+        // 일반 세부 불릿 리스트 HTML
+        let detailsHtml = '';
+        if (item.details && item.details.length > 0) {
+          detailsHtml = `
+            <ul class="mt-2.5 space-y-1.5">
+              ${item.details
+                .map(
+                  d => `
+                  <li class="flex items-start gap-2 text-xs sm:text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 shrink-0"></span>
+                    <span>${d}</span>
+                  </li>
+                `
+                )
+                .join('')}
+            </ul>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center ${
+                isSelected
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700'
+              }">
+                <i data-lucide="${item.icon}" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="text-base sm:text-lg font-extrabold text-gray-900 dark:text-white">
+                  ${item.fullTitle}
+                </h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">${item.summary}</p>
+              </div>
+            </div>
+
+            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full ${
+              item.step === 5
+                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300'
+                : 'bg-slate-200/70 text-slate-700 dark:bg-gray-800 dark:text-gray-300'
+            }">
+              ${item.tag}
+            </span>
+          </div>
+          ${detailsHtml}
+          ${subItemsHtml}
+        `;
+
+        card.addEventListener('click', () => {
+          state.activeStep = item.step;
+          renderProcessSteps();
+        });
+
+        detailContainer.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    function setupProcessViewControls() {
+      const allBtn = document.getElementById('viewModeAllBtn');
+      const singleBtn = document.getElementById('viewModeSingleBtn');
+
+      allBtn.addEventListener('click', () => {
+        state.stepViewMode = 'all';
+        allBtn.className = 'px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-300 shadow-xs transition-all';
+        singleBtn.className = 'px-3.5 py-2 rounded-xl text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-all';
+        renderProcessSteps();
+      });
+
+      singleBtn.addEventListener('click', () => {
+        state.stepViewMode = 'single';
+        singleBtn.className = 'px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-300 shadow-xs transition-all';
+        allBtn.className = 'px-3.5 py-2 rounded-xl text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-all';
+        renderProcessSteps();
+      });
+    }
+
+    /**
+     * 8. 초기화 실행
+     */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSavedState();
+      updateThemeUI();
+      setupHeaderActions();
+      setupCalculator();
+      renderGarageTabs();
+      renderChecklist();
+      setupChecklistActions();
+      renderProcessSteps();
+      setupProcessViewControls();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026년 차고지설치확인 민원 처리 현황 대시보드</title>
+
+  <!-- Pretendard & Noto Sans KR 웹폰트 로드 -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <!-- Tailwind 커스텀 설정: 폰트 및 포인트 컬러 정의 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Pretendard Variable"', 'Pretendard', '"Noto Sans KR"', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              800: '#1e3a8a',
+              900: '#0f172a',
+              950: '#0a1020',
+            },
+          },
+          boxShadow: {
+            card: '0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.04)',
+            'card-hover': '0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 4px 10px -4px rgba(15, 23, 42, 0.04)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* 부드러운 스크롤 및 기본 스타일 보정 */
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-feature-settings: "tnum" on, "lnum" on;
+    }
+    /* 커스텀 스크롤바 (테이블 영역) */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-blue-100 selection:text-blue-900">
+  <nav class="dashboard-return no-print" aria-label="통합 대시보드 탐색"><a href="index.html">통합 대시보드로 돌아가기</a></nav>
+
+  <!-- 상단 네비게이션 / 헤더 섹션 -->
+  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <!-- 제목 및 기간 배지 -->
+        <div class="flex items-start sm:items-center gap-3.5">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 to-navy-800 text-white flex items-center justify-center shadow-sm shrink-0">
+            <!-- 대시보드 아이콘 (SVG) -->
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h1 class="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
+                2026년 차고지설치확인 민원 처리 현황 대시보드
+              </h1>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/70">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                2026.01.06 ~ 2026.11.13
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+              월별·일별·요일별 민원 접수 추이 및 처리 밀도 분석 리포트
+            </p>
+          </div>
+        </div>
+
+        <!-- 컨트롤 영역: 월별 필터 드롭다운 + CSV 다운로드 -->
+        <div class="flex flex-wrap items-center gap-2.5">
+          <div class="relative flex-1 sm:flex-none">
+            <label for="headerMonthFilter" class="sr-only">월별 필터 선택</label>
+            <select id="headerMonthFilter"
+              class="w-full sm:w-44 appearance-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-sm font-medium rounded-xl pl-3.5 pr-9 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition cursor-pointer">
+              <option value="all">전체 기간 (1~11월)</option>
+              <option value="1">2026년 1월 (19건)</option>
+              <option value="2">2026년 2월 (20건)</option>
+              <option value="3">2026년 3월 (21건)</option>
+              <option value="4">2026년 4월 (46건)</option>
+              <option value="5">2026년 5월 (14건)</option>
+              <option value="6">2026년 6월 (44건)</option>
+              <option value="7">2026년 7월 (15건)</option>
+              <option value="8">2026년 8월 (14건)</option>
+              <option value="9">2026년 9월 (14건)</option>
+              <option value="10">2026년 10월 (23건)</option>
+              <option value="11">2026년 11월 (19건)</option>
+            </select>
+            <svg class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </div>
+
+          <button id="resetFilterBtn" type="button"
+            class="hidden items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+            </svg>
+            전체 보기
+          </button>
+
+          <button id="downloadCsvBtn" type="button"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-navy-800 hover:bg-blue-700 active:scale-[0.99] shadow-sm transition cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            <span>CSV 다운로드</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 월별 빠른 선택 버튼 바 -->
+      <div id="monthQuickButtons" class="mt-3.5 pt-3 border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar" role="tablist" aria-label="월별 빠른 필터">
+        <!-- JS로 동적 생성 -->
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 콘텐츠 컨테이너 -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
+
+    <!-- 현재 필터 상태 안내 배너 (특정 월 선택 시 노출) -->
+    <div id="activeFilterBanner" class="hidden bg-blue-50/90 border border-blue-200 rounded-2xl px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div class="flex items-center gap-2.5 text-sm text-blue-900">
+        <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-blue-600 text-white text-xs font-bold">F</span>
+        <span id="activeFilterText" class="font-medium"></span>
+      </div>
+      <button type="button" onclick="setMonthFilter('all')" class="text-xs font-semibold text-blue-700 hover:text-blue-900 underline underline-offset-2 self-start sm:self-auto cursor-pointer">
+        필터 해제하고 전체(1~11월) 보기
+      </button>
+    </div>
+
+    <!-- 1. 핵심 KPI 카드 4개 섹션 -->
+    <section aria-label="핵심 성과 지표">
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
+
+        <!-- KPI 1: 총 처리 건수 -->
+        <article class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-card hover:shadow-card-hover transition-shadow relative overflow-hidden">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p id="kpiTotalLabel" class="text-xs font-semibold uppercase tracking-wider text-slate-500">총 처리 건수</p>
+              <div class="mt-2 flex items-baseline gap-1.5">
+                <span id="kpiTotalValue" class="text-3xl font-extrabold text-slate-900 tracking-tight">249</span>
+                <span class="text-sm font-semibold text-slate-500">건</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+              </svg>
+            </div>
+          </div>
+          <div id="kpiTotalSub" class="mt-4 pt-3 border-t border-slate-100 space-y-1 text-xs text-slate-600">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">월평균 처리량</span>
+              <span class="font-semibold text-slate-800">22.6건 / 월</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">문서상 총합계 표기</span>
+              <span class="font-medium text-slate-500">250건 (원본 기준)</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- KPI 2: 일평균 처리량 -->
+        <article class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-card hover:shadow-card-hover transition-shadow relative overflow-hidden">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p id="kpiDailyLabel" class="text-xs font-semibold uppercase tracking-wider text-slate-500">일평균 처리량</p>
+              <div class="mt-2 flex items-baseline gap-1.5">
+                <span id="kpiDailyValue" class="text-3xl font-extrabold text-blue-600 tracking-tight">2.17</span>
+                <span class="text-sm font-semibold text-slate-500">건/일</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <div id="kpiDailySub" class="mt-4 pt-3 border-t border-slate-100 space-y-1 text-xs text-slate-600">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">기준 접수 발생일</span>
+              <span class="font-semibold text-slate-800">115일</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">전체(317일) / 평일 기준</span>
+              <span class="font-medium text-slate-700">0.79건 / 약 1.13건</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- KPI 3: 최다 처리 월 -->
+        <article class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-card hover:shadow-card-hover transition-shadow relative overflow-hidden">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p id="kpiPeakMonthLabel" class="text-xs font-semibold uppercase tracking-wider text-slate-500">최다 처리 월</p>
+              <div class="mt-2 flex items-baseline gap-1.5">
+                <span id="kpiPeakMonthValue" class="text-3xl font-extrabold text-navy-800 tracking-tight">4월</span>
+                <span id="kpiPeakMonthUnit" class="text-sm font-semibold text-blue-600">46건</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+              </svg>
+            </div>
+          </div>
+          <div id="kpiPeakMonthSub" class="mt-4 pt-3 border-t border-slate-100 space-y-1 text-xs text-slate-600">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">전체 대비 비중</span>
+              <span class="font-semibold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded">18.5%</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">2위 처리 월</span>
+              <span class="font-semibold text-slate-800">6월 (44건, 17.7%)</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- KPI 4: 최다 처리 일 -->
+        <article class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-card hover:shadow-card-hover transition-shadow relative overflow-hidden">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p id="kpiPeakDayLabel" class="text-xs font-semibold uppercase tracking-wider text-slate-500">최다 처리 일</p>
+              <div class="mt-2 flex items-baseline gap-1.5">
+                <span id="kpiPeakDayValue" class="text-3xl font-extrabold text-slate-900 tracking-tight">6월 1일</span>
+                <span id="kpiPeakDayUnit" class="text-sm font-semibold text-amber-600">8건</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
+              </svg>
+            </div>
+          </div>
+          <div id="kpiPeakDaySub" class="mt-4 pt-3 border-t border-slate-100 space-y-1 text-xs text-slate-600">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">2위 최다 처리일</span>
+              <span class="font-semibold text-slate-800">10월 29일 (7건)</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">3위 최다 처리일</span>
+              <span class="font-semibold text-slate-800">4월 23일 (6건)</span>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- 2. 시각화 차트 섹션 (2x2 반응형 그리드) -->
+    <section aria-label="민원 처리 시각화 차트" class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
+
+      <!-- 차트 1: 월별 처리 건수 및 월평균 비교 (막대+선) -->
+      <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-card flex flex-col">
+        <div class="flex flex-wrap items-start justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">월별 처리 건수 및 월평균 비교</h2>
+            <p class="text-xs text-slate-500 mt-0.5">막대를 클릭하면 해당 월의 상세 내역으로 자동 필터링됩니다.</p>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-navy-800/10 text-navy-800 font-semibold">
+              <span class="w-2 h-2 rounded-full bg-navy-800"></span>피크 월(4·6월)
+            </span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 font-semibold">
+              <span class="w-2.5 h-0.5 bg-amber-500"></span>월평균 22.6건
+            </span>
+          </div>
+        </div>
+        <div class="relative w-full h-72 sm:h-80">
+          <canvas id="monthlyComboChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 차트 2: 최다 처리 일자 TOP 10 (가로 막대) -->
+      <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-card flex flex-col">
+        <div class="flex flex-wrap items-start justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">최다 처리 일자 TOP 10</h2>
+            <p class="text-xs text-slate-500 mt-0.5">단일 일자 기준 민원 접수가 집중된 상위 10개 일자 (5건 이상 집중일)</p>
+          </div>
+          <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700">
+            최고 8건 (6/1)
+          </span>
+        </div>
+        <div class="relative w-full h-72 sm:h-80">
+          <canvas id="topDaysChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 차트 3: 요일별 민원 접수 분포 (2026년 실제 요일 자동 계산) -->
+      <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-card flex flex-col">
+        <div class="flex flex-wrap items-start justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">요일별 민원 접수 분포</h2>
+            <p id="weekdayChartDesc" class="text-xs text-slate-500 mt-0.5">2026년 달력 기준 실제 요일(월~금) 자동 산출 결과</p>
+          </div>
+          <span id="weekdayPeakBadge" class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700">
+            요일 분석
+          </span>
+        </div>
+        <div class="relative w-full h-72 sm:h-80">
+          <canvas id="weekdayChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 차트 4: 월별 접수 발생일 대비 일평균 처리량 추이 -->
+      <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-card flex flex-col">
+        <div class="flex flex-wrap items-start justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">월별 접수 발생일 대비 일평균 처리량 추이</h2>
+            <p class="text-xs text-slate-500 mt-0.5">접수가 발생한 일수(막대)와 해당 월 일평균 처리 건수(선) 비교</p>
+          </div>
+          <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-sky-50 text-sky-700">
+            최고 밀도 6월 (2.93건/일)
+          </span>
+        </div>
+        <div class="relative w-full h-72 sm:h-80">
+          <canvas id="densityTrendChart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 3. 핵심 분석 인사이트 패널 -->
+    <section aria-label="핵심 분석 인사이트" class="bg-white rounded-2xl border border-slate-200/80 shadow-card overflow-hidden">
+      <div class="px-5 sm:px-6 py-4 bg-gradient-to-r from-navy-900 to-navy-800 text-white flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5">
+          <svg class="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+          </svg>
+          <h2 class="text-base sm:text-lg font-bold tracking-tight">핵심 분석 인사이트</h2>
+        </div>
+        <span class="text-xs text-blue-200 font-medium">2026년 1월 ~ 11월 누적 데이터 기반</span>
+      </div>
+
+      <div class="p-5 sm:p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+
+          <!-- 인사이트 1: 4월·6월 집중 현상 -->
+          <div class="rounded-xl bg-slate-50 border border-slate-200/70 p-4 sm:p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-2.5">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800">피크 집중도</span>
+                <span class="text-sm font-extrabold text-blue-700">36.1%</span>
+              </div>
+              <h3 class="text-sm sm:text-base font-bold text-slate-900">4월·6월 민원 집중 현상 뚜렷</h3>
+              <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+                연간 최다 처리 월인 <strong class="text-slate-900">4월(46건)</strong>과 2위인 <strong class="text-slate-900">6월(44건)</strong> 두 달의 합계가 <strong class="text-blue-700">90건</strong>으로, 전체 처리량(249건)의 <strong class="text-blue-700">36.1%</strong>를 차지합니다. 두 달 모두 월평균(22.6건)의 약 2배 수준입니다.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-200/70 flex items-center justify-between text-xs text-slate-500">
+              <span>4월 일평균 2.88건</span>
+              <span>6월 일평균 2.93건</span>
+            </div>
+          </div>
+
+          <!-- 인사이트 2: 상반기 vs 하반기 비교 -->
+          <div class="rounded-xl bg-slate-50 border border-slate-200/70 p-4 sm:p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-2.5">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800">반기별 비중</span>
+                <span class="text-sm font-extrabold text-indigo-700">65.9% vs 34.1%</span>
+              </div>
+              <h3 class="text-sm sm:text-base font-bold text-slate-900">상반기 처리량이 하반기의 약 1.93배</h3>
+              <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+                <strong class="text-slate-900">상반기(1~6월) 164건(65.9%)</strong> 대비 <strong class="text-slate-900">하반기(7~11월) 85건(34.1%)</strong>으로 상반기 쏠림이 강하게 나타납니다. 다만 10월(23건)부터 다시 반등세를 보이고 있습니다.
+              </p>
+            </div>
+            <!-- 상반기 vs 하반기 시각적 비율 바 -->
+            <div class="mt-4 pt-3 border-t border-slate-200/70">
+              <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden flex">
+                <div class="bg-blue-600 h-full" style="width: 65.9%" title="상반기 65.9%"></div>
+                <div class="bg-sky-400 h-full" style="width: 34.1%" title="하반기 34.1%"></div>
+              </div>
+              <div class="flex justify-between text-[11px] font-semibold mt-1.5">
+                <span class="text-blue-700">상반기 164건 (65.9%)</span>
+                <span class="text-sky-700">하반기 85건 (34.1%)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 인사이트 3: 11월 높은 처리 밀도 -->
+          <div class="rounded-xl bg-slate-50 border border-slate-200/70 p-4 sm:p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-2.5">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">최근 추세 주목</span>
+                <span class="text-sm font-extrabold text-amber-700">2.71건/일</span>
+              </div>
+              <h3 class="text-sm sm:text-base font-bold text-slate-900">11월 중순 기준 고밀도 민원 유입</h3>
+              <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+                11월은 <strong class="text-slate-900">13일까지만 집계</strong>되었음에도 이미 <strong class="text-slate-900">19건(7일 발생)</strong>이 접수되어 일평균 <strong class="text-amber-700">2.71건/일</strong>을 기록했습니다. 이는 6월(2.93)·4월(2.88)에 이은 연간 3위 밀도입니다.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-200/70 flex items-center justify-between text-xs text-slate-500">
+              <span>11/11(5건), 11/13(5건)</span>
+              <span class="font-semibold text-amber-700">하반기 최고 밀도</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 데이터 검수 주석 -->
+        <div class="mt-5 rounded-xl bg-slate-100/80 border border-slate-200 px-4 py-3 flex items-start gap-3">
+          <svg class="w-4 h-4 text-slate-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+          </svg>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            <strong class="text-slate-800 font-semibold">[데이터 검수 주석]</strong>
+            본 대시보드는 PDF 원본의 월별 및 연간 요약치(4월 46건, 6월 44건, 8월 14건, 2026년 요약 249건)를 기준으로 작성되었으며, 원본 표 추출 과정에서 일부 병합·누락된 일별 수치(4/10·14·15, 6/15, 8/13 및 공란 표기일)를 월별 요약치와의 정합성에 맞게 보정하여 반영하였습니다. (문서 하단 총합계 250건은 원본 표기 기준 병기)
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 일별 상세 내역 테이블 섹션 -->
+    <section aria-label="일별 상세 내역 테이블" class="bg-white rounded-2xl border border-slate-200/80 shadow-card overflow-hidden">
+      <div class="p-5 sm:p-6 border-b border-slate-200/80">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">일별 민원 접수 상세 내역</h2>
+            <p class="text-xs text-slate-500 mt-0.5">
+              5건 이상 접수된 집중일은 <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold">집중일</span> 배지로 강조 표시됩니다.
+            </p>
+          </div>
+
+          <!-- 테이블 컨트롤: 검색, 정렬, 집중일 필터 -->
+          <div class="flex flex-wrap items-center gap-2.5">
+            <!-- 검색창 -->
+            <div class="relative flex-1 sm:flex-none">
+              <label for="tableSearchInput" class="sr-only">날짜, 요일, 건수 검색</label>
+              <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              <input id="tableSearchInput" type="text" placeholder="날짜·요일 검색 (예: 6월, 목요일)"
+                class="w-full sm:w-56 bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition" />
+            </div>
+
+            <!-- 정렬 선택 -->
+            <div class="relative">
+              <label for="tableSortSelect" class="sr-only">정렬 기준</label>
+              <select id="tableSortSelect"
+                class="appearance-none bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl pl-3.5 pr-8 py-2 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition cursor-pointer">
+                <option value="date-asc">날짜순 (오래된순)</option>
+                <option value="date-desc">날짜순 (최신순)</option>
+                <option value="count-desc">건수순 (많은순)</option>
+                <option value="count-asc">건수순 (적은순)</option>
+              </select>
+              <svg class="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+              </svg>
+            </div>
+
+            <!-- 집중일(5건 이상)만 보기 토글 -->
+            <button id="peakOnlyToggle" type="button" aria-pressed="false"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition cursor-pointer">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span>5건 이상만</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 테이블 영역 -->
+      <div class="overflow-x-auto max-h-[460px] overflow-y-auto custom-scrollbar">
+        <table class="w-full text-left border-collapse">
+          <thead class="sticky top-0 z-10 bg-slate-50/95 backdrop-blur border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <tr>
+              <th class="py-3.5 px-5 w-16 text-center">No.</th>
+              <th class="py-3.5 px-5">접수일자</th>
+              <th class="py-3.5 px-5">월 구분</th>
+              <th class="py-3.5 px-5">요일</th>
+              <th class="py-3.5 px-5 text-right">접수건수</th>
+              <th class="py-3.5 px-5">유형 / 상태</th>
+              <th class="py-3.5 px-5 hidden sm:table-cell w-44">건수 비중 (최대 8건)</th>
+            </tr>
+          </thead>
+          <tbody id="detailTableBody" class="divide-y divide-slate-100 text-sm">
+            <!-- JS로 동적 렌더링 -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 테이블 하단 요약 바 -->
+      <div class="px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm text-slate-600">
+        <div id="tableSummaryLeft" class="font-medium">
+          총 <strong class="text-slate-900">115</strong>개 접수일 표시 중
+        </div>
+        <div id="tableSummaryRight" class="flex flex-wrap items-center gap-4">
+          <span>조회 합계: <strong class="text-blue-700 font-bold">249건</strong></span>
+          <span>조회 일평균: <strong class="text-slate-900 font-bold">2.17건/일</strong></span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-xs text-slate-400">
+    2026년 차고지설치확인 민원 처리 현황 분석 대시보드 &middot; 데이터 기준일: 2026년 11월 13일
+  </footer>
+
+  <!-- 커스텀 토스트 메시지 박스 (alert 대신 사용) -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 pointer-events-none flex flex-col gap-2"></div>
+
+  <!-- 대시보드 데이터 및 인터랙션 스크립트 -->
+  <script>
+    /**
+     * ============================================================================
+     * 1. 원본 데이터 정의 (2026년 1월 ~ 11월, 총 249건, 접수 발생일 115일)
+     * ============================================================================
+     */
+    const RAW_DATA = [
+      // 1월 (합계 19건, 11일)
+      { month: 1, day: 6, count: 3 }, { month: 1, day: 7, count: 3 }, { month: 1, day: 9, count: 1 },
+      { month: 1, day: 12, count: 2 }, { month: 1, day: 13, count: 1 }, { month: 1, day: 20, count: 2 },
+      { month: 1, day: 22, count: 2 }, { month: 1, day: 23, count: 1 }, { month: 1, day: 26, count: 2 },
+      { month: 1, day: 29, count: 1 }, { month: 1, day: 30, count: 1 },
+
+      // 2월 (합계 20건, 11일)
+      { month: 2, day: 2, count: 1 }, { month: 2, day: 3, count: 3 }, { month: 2, day: 5, count: 1 },
+      { month: 2, day: 10, count: 1 }, { month: 2, day: 12, count: 1 }, { month: 2, day: 13, count: 1 },
+      { month: 2, day: 23, count: 4 }, { month: 2, day: 24, count: 1 }, { month: 2, day: 25, count: 1 },
+      { month: 2, day: 26, count: 2 }, { month: 2, day: 27, count: 4 },
+
+      // 3월 (합계 21건, 11일)
+      { month: 3, day: 3, count: 3 }, { month: 3, day: 4, count: 3 }, { month: 3, day: 9, count: 2 },
+      { month: 3, day: 10, count: 3 }, { month: 3, day: 11, count: 1 }, { month: 3, day: 16, count: 2 },
+      { month: 3, day: 18, count: 1 }, { month: 3, day: 20, count: 1 }, { month: 3, day: 26, count: 3 },
+      { month: 3, day: 30, count: 1 }, { month: 3, day: 31, count: 1 },
+
+      // 4월 (합계 46건, 16일)
+      { month: 4, day: 3, count: 1 }, { month: 4, day: 6, count: 4 }, { month: 4, day: 7, count: 1 },
+      { month: 4, day: 8, count: 4 }, { month: 4, day: 10, count: 2 }, { month: 4, day: 14, count: 3 },
+      { month: 4, day: 15, count: 1 }, { month: 4, day: 20, count: 2 }, { month: 4, day: 21, count: 2 },
+      { month: 4, day: 22, count: 5 }, { month: 4, day: 23, count: 6 }, { month: 4, day: 24, count: 1 },
+      { month: 4, day: 27, count: 5 }, { month: 4, day: 28, count: 5 }, { month: 4, day: 29, count: 2 },
+      { month: 4, day: 30, count: 2 },
+
+      // 5월 (합계 14건, 9일)
+      { month: 5, day: 4, count: 3 }, { month: 5, day: 6, count: 1 }, { month: 5, day: 7, count: 1 },
+      { month: 5, day: 8, count: 3 }, { month: 5, day: 11, count: 1 }, { month: 5, day: 13, count: 2 },
+      { month: 5, day: 21, count: 1 }, { month: 5, day: 26, count: 1 }, { month: 5, day: 28, count: 1 },
+
+      // 6월 (합계 44건, 15일)
+      { month: 6, day: 1, count: 8 }, { month: 6, day: 4, count: 5 }, { month: 6, day: 5, count: 1 },
+      { month: 6, day: 8, count: 1 }, { month: 6, day: 9, count: 2 }, { month: 6, day: 11, count: 1 },
+      { month: 6, day: 15, count: 1 }, { month: 6, day: 18, count: 2 }, { month: 6, day: 19, count: 4 },
+      { month: 6, day: 22, count: 4 }, { month: 6, day: 23, count: 4 }, { month: 6, day: 24, count: 3 },
+      { month: 6, day: 25, count: 4 }, { month: 6, day: 26, count: 2 }, { month: 6, day: 30, count: 2 },
+
+      // 7월 (합계 15건, 9일)
+      { month: 7, day: 1, count: 2 }, { month: 7, day: 2, count: 1 }, { month: 7, day: 7, count: 1 },
+      { month: 7, day: 8, count: 1 }, { month: 7, day: 10, count: 1 }, { month: 7, day: 20, count: 1 },
+      { month: 7, day: 21, count: 1 }, { month: 7, day: 24, count: 5 }, { month: 7, day: 27, count: 2 },
+
+      // 8월 (합계 14건, 9일)
+      { month: 8, day: 3, count: 1 }, { month: 8, day: 6, count: 1 }, { month: 8, day: 13, count: 1 },
+      { month: 8, day: 14, count: 1 }, { month: 8, day: 18, count: 4 }, { month: 8, day: 20, count: 2 },
+      { month: 8, day: 24, count: 2 }, { month: 8, day: 26, count: 1 }, { month: 8, day: 31, count: 1 },
+
+      // 9월 (합계 14건, 7일)
+      { month: 9, day: 2, count: 1 }, { month: 9, day: 4, count: 3 }, { month: 9, day: 9, count: 4 },
+      { month: 9, day: 15, count: 1 }, { month: 9, day: 17, count: 1 }, { month: 9, day: 23, count: 1 },
+      { month: 9, day: 30, count: 3 },
+
+      // 10월 (합계 23건, 10일)
+      { month: 10, day: 6, count: 2 }, { month: 10, day: 7, count: 2 }, { month: 10, day: 12, count: 1 },
+      { month: 10, day: 13, count: 1 }, { month: 10, day: 19, count: 2 }, { month: 10, day: 20, count: 3 },
+      { month: 10, day: 21, count: 1 }, { month: 10, day: 22, count: 3 }, { month: 10, day: 29, count: 7 },
+      { month: 10, day: 30, count: 1 },
+
+      // 11월 (합계 19건, 7일)
+      { month: 11, day: 2, count: 2 }, { month: 11, day: 5, count: 2 }, { month: 11, day: 6, count: 2 },
+      { month: 11, day: 10, count: 1 }, { month: 11, day: 11, count: 5 }, { month: 11, day: 12, count: 2 },
+      { month: 11, day: 13, count: 5 }
+    ];
+
+    // 요일 한글 매핑 (JS Date.getDay(): 0=일 ~ 6=토)
+    const WEEKDAY_NAMES = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+    const WEEKDAY_SHORT = ['일', '월', '화', '수', '목', '금', '토'];
+
+    // 데이터 보강: ISO 날짜, 표시용 날짜, 2026년 실제 요일 자동 계산
+    const RECORDS = RAW_DATA.map((item) => {
+      const dateObj = new Date(2026, item.month - 1, item.day);
+      const dayOfWeek = dateObj.getDay(); // 1(월) ~ 5(금)
+      const mm = String(item.month).padStart(2, '0');
+      const dd = String(item.day).padStart(2, '0');
+      return {
+        ...item,
+        isoDate: `2026-${mm}-${dd}`,
+        displayDate: `${item.month}월 ${item.day}일`,
+        shortDate: `${item.month}/${item.day}`,
+        dayOfWeek,
+        weekdayName: WEEKDAY_NAMES[dayOfWeek],
+        weekdayShort: WEEKDAY_SHORT[dayOfWeek],
+        timestamp: dateObj.getTime(),
+      };
+    });
+
+    // 월별 집계 데이터 생성 (1월~11월)
+    const MONTHLY_STATS = Array.from({ length: 11 }, (_, idx) => {
+      const m = idx + 1;
+      const monthRecords = RECORDS.filter((r) => r.month === m);
+      const total = monthRecords.reduce((sum, r) => sum + r.count, 0);
+      const activeDays = monthRecords.length;
+      const dailyAvg = activeDays > 0 ? +(total / activeDays).toFixed(2) : 0;
+      return {
+        month: m,
+        label: `${m}월`,
+        total,
+        activeDays,
+        dailyAvg,
+      };
+    });
+
+    const OVERALL_TOTAL = RECORDS.reduce((s, r) => s + r.count, 0); // 249
+    const OVERALL_ACTIVE_DAYS = RECORDS.length; // 115
+    const OVERALL_MONTHLY_AVG = +(OVERALL_TOTAL / 11).toFixed(1); // 22.6
+
+    /**
+     * ============================================================================
+     * 2. 애플리케이션 상태 관리
+     * ============================================================================
+     */
+    const state = {
+      selectedMonth: 'all', // 'all' 또는 '1'~'11'
+      searchQuery: '',
+      sortBy: 'date-asc',
+      peakOnly: false,
+    };
+
+    // Chart.js 인스턴스 보관용 객체
+    const charts = {
+      monthlyCombo: null,
+      topDays: null,
+      weekday: null,
+      densityTrend: null,
+    };
+
+    /**
+     * ============================================================================
+     * 3. 유틸리티 함수 (토스트 알림, 필터링 데이터 반환)
+     * ============================================================================
+     */
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const colorClass = type === 'success'
+        ? 'bg-navy-900 text-white border-navy-800'
+        : 'bg-slate-800 text-white border-slate-700';
+
+      toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-lg border text-sm font-medium transition-all duration-300 opacity-0 translate-y-2 ${colorClass}`;
+      toast.innerHTML = `
+        <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('opacity-0', 'translate-y-2');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 2800);
+    }
+
+    function getMonthFilteredRecords() {
+      if (state.selectedMonth === 'all') return RECORDS;
+      const m = Number(state.selectedMonth);
+      return RECORDS.filter((r) => r.month === m);
+    }
+
+    /**
+     * ============================================================================
+     * 4. UI 렌더링: 빠른 월별 필터 버튼 & KPI 카드 업데이트
+     * ============================================================================
+     */
+    function renderQuickMonthButtons() {
+      const container = document.getElementById('monthQuickButtons');
+      const buttons = [{ value: 'all', label: '전체 (1~11월)' }].concat(
+        MONTHLY_STATS.map((m) => ({
+          value: String(m.month),
+          label: `${m.month}월`,
+          isPeak: m.month === 4 || m.month === 6,
+        }))
+      );
+
+      container.innerHTML = buttons.map((btn) => {
+        const isActive = state.selectedMonth === btn.value;
+        const baseCls = 'shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer border';
+        const activeCls = isActive
+          ? 'bg-navy-800 text-white border-navy-800 shadow-sm'
+          : btn.isPeak
+            ? 'bg-blue-50/70 text-blue-800 border-blue-200/80 hover:bg-blue-100'
+            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100';
+
+        return `<button type="button" role="tab" aria-selected="${isActive}" data-month="${btn.value}" class="${baseCls} ${activeCls}">${btn.label}</button>`;
+      }).join('');
+
+      container.querySelectorAll('button').forEach((el) => {
+        el.addEventListener('click', () => setMonthFilter(el.dataset.month));
+      });
+    }
+
+    function updateKpiCards() {
+      const resetBtn = document.getElementById('resetFilterBtn');
+      const banner = document.getElementById('activeFilterBanner');
+      const bannerText = document.getElementById('activeFilterText');
+
+      if (state.selectedMonth === 'all') {
+        resetBtn.classList.add('hidden');
+        resetBtn.classList.remove('inline-flex');
+        banner.classList.add('hidden');
+
+        // 전체 기간 기본 KPI 표시
+        document.getElementById('kpiTotalLabel').textContent = '총 처리 건수';
+        document.getElementById('kpiTotalValue').textContent = '249';
+        document.getElementById('kpiTotalSub').innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">월평균 처리량</span>
+            <span class="font-semibold text-slate-800">22.6건 / 월</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">문서상 총합계 표기</span>
+            <span class="font-medium text-slate-500">250건 (원본 기준)</span>
+          </div>
+        `;
+
+        document.getElementById('kpiDailyLabel').textContent = '일평균 처리량';
+        document.getElementById('kpiDailyValue').textContent = '2.17';
+        document.getElementById('kpiDailySub').innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">기준 접수 발생일</span>
+            <span class="font-semibold text-slate-800">115일</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">전체(317일) / 평일 기준</span>
+            <span class="font-medium text-slate-700">0.79건 / 약 1.13건</span>
+          </div>
+        `;
+
+        document.getElementById('kpiPeakMonthLabel').textContent = '최다 처리 월';
+        document.getElementById('kpiPeakMonthValue').textContent = '4월';
+        document.getElementById('kpiPeakMonthUnit').textContent = '46건';
+        document.getElementById('kpiPeakMonthSub').innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">전체 대비 비중</span>
+            <span class="font-semibold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded">18.5%</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">2위 처리 월</span>
+            <span class="font-semibold text-slate-800">6월 (44건, 17.7%)</span>
+          </div>
+        `;
+
+        document.getElementById('kpiPeakDayLabel').textContent = '최다 처리 일';
+        document.getElementById('kpiPeakDayValue').textContent = '6월 1일';
+        document.getElementById('kpiPeakDayUnit').textContent = '8건';
+        document.getElementById('kpiPeakDaySub').innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">2위 최다 처리일</span>
+            <span class="font-semibold text-slate-800">10월 29일 (7건)</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">3위 최다 처리일</span>
+            <span class="font-semibold text-slate-800">4월 23일 (6건)</span>
+          </div>
+        `;
+      } else {
+        const m = Number(state.selectedMonth);
+        const mRecords = getMonthFilteredRecords();
+        const mStat = MONTHLY_STATS.find((item) => item.month === m);
+        const sharePct = ((mStat.total / OVERALL_TOTAL) * 100).toFixed(1);
+        const sortedByCount = [...mRecords].sort((a, b) => b.count - a.count || a.day - b.day);
+        const peakDay = sortedByCount[0];
+        const secondDay = sortedByCount[1];
+        const peakDays5Plus = mRecords.filter((r) => r.count >= 5).length;
+
+        resetBtn.classList.remove('hidden');
+        resetBtn.classList.add('inline-flex');
+        banner.classList.remove('hidden');
+        bannerText.innerHTML = `현재 <strong>2026년 ${m}월</strong> 기준으로 필터링 중입니다. (총 ${mStat.total}건 / 접수 발생일 ${mStat.activeDays}일)`;
+
+        // 선택 월 기준 KPI 업데이트
+        document.getElementById('kpiTotalLabel').textContent = `${m}월 총 처리 건수`;
+        document.getElementById('kpiTotalValue').textContent = mStat.total;
+        document.getElementById('kpiTotalSub').innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">연간 전체 대비 비중</span>
+            <span class="font-semibold text-blue-700">${sharePct}%</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">월평균(22.6건) 대비</span>
+            <span class="font-semibold ${mStat.total >= OVERALL_MONTHLY_AVG ? 'text-blue-700' : 'text-slate-600'}">
+              ${mStat.total >= OVERALL_MONTHLY_AVG ? '+' : ''}${(mStat.total - OVERALL_MONTHLY_AVG).toFixed(1)}건
+            </span>
+          </div>
+        `;
+
+        document.getElementById('kpiDailyLabel').textContent = `${m}월 일평균 처리량`;
+        document.getElementById('kpiDailyValue').textContent = mStat.dailyAvg.toFixed(2);
+        document.getElementById('kpiDailySub').innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">${m}월 접수 발생일</span>
+            <span class="font-semibold text-slate-800">${mStat.activeDays}일</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">전체 일평균(2.17건) 대비</span>
+            <span class="font-semibold ${mStat.dailyAvg >= 2.17 ? 'text-blue-700' : 'text-slate-600'}">
+              ${mStat.dailyAvg >= 2.17 ? '+' : ''}${(mStat.dailyAvg - 2.17).toFixed(2)}건/일
+            </span>
+          </div>
+        `;
+
+        // 월 순위 계산
+        const rankList = [...MONTHLY_STATS].sort((a, b) => b.total - a.total);
+        const rank = rankList.findIndex((item) => item.month === m) + 1;
+
+        document.getElementById('kpiPeakMonthLabel').textContent = `${m}월 처리 순위`;
+        document.getElementById('kpiPeakMonthValue').textContent = `${rank}위`;
+        document.getElementById('kpiPeakMonthUnit').textContent = `/ 11개월`;
+        document.getElementById('kpiPeakMonthSub').innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">5건 이상 집중일 수</span>
+            <span class="font-semibold text-slate-800">${peakDays5Plus}일</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">연간 1위 월</span>
+            <span class="font-medium text-slate-600">4월 (46건)</span>
+          </div>
+        `;
+
+        document.getElementById('kpiPeakDayLabel').textContent = `${m}월 최다 처리 일`;
+        document.getElementById('kpiPeakDayValue').textContent = peakDay.displayDate;
+        document.getElementById('kpiPeakDayUnit').textContent = `${peakDay.count}건`;
+        document.getElementById('kpiPeakDaySub').innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">해당일 요일</span>
+            <span class="font-semibold text-slate-800">${peakDay.weekdayName}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">${m}월 2위 처리일</span>
+            <span class="font-semibold text-slate-800">${secondDay ? `${secondDay.displayDate} (${secondDay.count}건)` : '-'}</span>
+          </div>
+        `;
+      }
+    }
+
+    /**
+     * ============================================================================
+     * 5. Chart.js 시각화 차트 초기화 및 업데이트
+     * ============================================================================
+     */
+    // 공통 Chart.js 기본 폰트 설정
+    Chart.defaults.font.family = '"Pretendard Variable", Pretendard, "Noto Sans KR", sans-serif';
+    Chart.defaults.color = '#64748b';
+
+    function initCharts() {
+      try {
+        renderMonthlyComboChart();
+        renderTopDaysChart();
+        renderWeekdayChart();
+        renderDensityTrendChart();
+      } catch (err) {
+        console.error('차트 렌더링 중 오류 발생:', err);
+        showToast('차트 초기화 중 오류가 발생했습니다.');
+      }
+    }
+
+    // 차트 1: 월별 처리 건수 및 월평균 비교 (막대 + 선)
+    function renderMonthlyComboChart() {
+      const ctx = document.getElementById('monthlyComboChart').getContext('2d');
+      const labels = MONTHLY_STATS.map((m) => m.label);
+      const counts = MONTHLY_STATS.map((m) => m.total);
+      const avgLine = MONTHLY_STATS.map(() => OVERALL_MONTHLY_AVG);
+
+      const getBarColors = () => MONTHLY_STATS.map((m) => {
+        const isSelected = state.selectedMonth !== 'all' && Number(state.selectedMonth) === m.month;
+        const isPeak = m.month === 4 || m.month === 6;
+        if (state.selectedMonth !== 'all') {
+          return isSelected ? '#1e3a8a' : 'rgba(148, 163, 184, 0.35)';
+        }
+        return isPeak ? '#1e3a8a' : '#3b82f6';
+      });
+
+      if (charts.monthlyCombo) {
+        charts.monthlyCombo.data.datasets[0].backgroundColor = getBarColors();
+        charts.monthlyCombo.update();
+        return;
+      }
+
+      charts.monthlyCombo = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              type: 'bar',
+              label: '월별 처리 건수',
+              data: counts,
+              backgroundColor: getBarColors(),
+              hoverBackgroundColor: '#1d4ed8',
+              borderRadius: 8,
+              borderSkipped: false,
+              barPercentage: 0.62,
+              order: 2,
+            },
+            {
+              type: 'line',
+              label: '월평균 (22.6건)',
+              data: avgLine,
+              borderColor: '#f59e0b',
+              borderWidth: 2,
+              borderDash: [6, 4],
+              pointRadius: 0,
+              pointHoverRadius: 4,
+              fill: false,
+              order: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (_event, elements) => {
+            if (elements.length > 0 && elements[0].datasetIndex === 0) {
+              const clickedMonth = String(MONTHLY_STATS[elements[0].index].month);
+              // 이미 선택된 월을 다시 클릭하면 전체 해제
+              setMonthFilter(state.selectedMonth === clickedMonth ? 'all' : clickedMonth);
+            }
+          },
+          onHover: (event, elements) => {
+            event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+          },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { usePointStyle: true, boxWidth: 8, padding: 16, font: { size: 12 } },
+            },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              padding: 12,
+              cornerRadius: 10,
+              callbacks: {
+                afterBody: (items) => {
+                  const idx = items[0].dataIndex;
+                  const stat = MONTHLY_STATS[idx];
+                  const share = ((stat.total / OVERALL_TOTAL) * 100).toFixed(1);
+                  return [
+                    `접수 발생일: ${stat.activeDays}일`,
+                    `일평균 처리량: ${stat.dailyAvg.toFixed(2)}건/일`,
+                    `전체 대비 비중: ${share}%`,
+                  ];
+                },
+              },
+            },
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { weight: '600', size: 12 } },
+            },
+            y: {
+              beginAtZero: true,
+              suggestedMax: 52,
+              grid: { color: '#f1f5f9' },
+              ticks: { stepSize: 10, callback: (v) => `${v}건` },
+            },
+          },
+        },
+      });
+    }
+
+    // 차트 2: 최다 처리 일자 TOP 10 가로 막대 차트
+    function renderTopDaysChart() {
+      const ctx = document.getElementById('topDaysChart').getContext('2d');
+      const top10 = [...RECORDS]
+        .sort((a, b) => b.count - a.count || a.timestamp - b.timestamp)
+        .slice(0, 10);
+
+      const labels = top10.map((r) => `${r.displayDate} (${r.weekdayShort})`);
+      const data = top10.map((r) => r.count);
+      const colors = top10.map((r, idx) => {
+        if (idx === 0) return '#0f172a'; // 1위 6/1 (8건)
+        if (idx === 1) return '#1e3a8a'; // 2위 10/29 (7건)
+        if (idx === 2) return '#2563eb'; // 3위 4/23 (6건)
+        return '#60a5fa';                // 5건 집중일
+      });
+
+      charts.topDays = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: '접수 건수',
+              data,
+              backgroundColor: colors,
+              borderRadius: 6,
+              barPercentage: 0.7,
+            },
+          ],
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              padding: 12,
+              cornerRadius: 10,
+              callbacks: {
+                label: (ctx) => ` 접수 건수: ${ctx.parsed.x}건`,
+              },
+            },
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              suggestedMax: 9,
+              grid: { color: '#f1f5f9' },
+              ticks: { stepSize: 2, callback: (v) => `${v}건` },
+            },
+            y: {
+              grid: { display: false },
+              ticks: { font: { weight: '600', size: 12 }, color: '#334155' },
+            },
+          },
+        },
+      });
+    }
+
+    // 차트 3: 요일별 민원 접수 분포 (월~금)
+    function renderWeekdayChart() {
+      const ctx = document.getElementById('weekdayChart').getContext('2d');
+      const filtered = getMonthFilteredRecords();
+      const weekdays = [1, 2, 3, 4, 5]; // 월~금
+      const labels = ['월요일', '화요일', '수요일', '목요일', '금요일'];
+
+      const totals = weekdays.map((w) =>
+        filtered.filter((r) => r.dayOfWeek === w).reduce((sum, r) => sum + r.count, 0)
+      );
+      const activeDayCounts = weekdays.map((w) =>
+        filtered.filter((r) => r.dayOfWeek === w).length
+      );
+
+      const maxVal = Math.max(...totals);
+      const peakIdx = totals.indexOf(maxVal);
+      const peakBadge = document.getElementById('weekdayPeakBadge');
+      if (maxVal > 0) {
+        peakBadge.textContent = `최다 요일: ${labels[peakIdx]} (${maxVal}건)`;
+      } else {
+        peakBadge.textContent = '데이터 없음';
+      }
+
+      const barColors = totals.map((v) => (v === maxVal && v > 0 ? '#1e3a8a' : '#3b82f6'));
+
+      if (charts.weekday) {
+        charts.weekday.data.datasets[0].data = totals;
+        charts.weekday.data.datasets[0].backgroundColor = barColors;
+        charts.weekday.options.plugins.tooltip.callbacks.afterBody = (items) => {
+          const i = items[0].dataIndex;
+          const days = activeDayCounts[i];
+          const avg = days > 0 ? (totals[i] / days).toFixed(2) : '0.00';
+          return [`발생 일수: ${days}일`, `해당 요일 평균: ${avg}건/일`];
+        };
+        charts.weekday.update();
+        return;
+      }
+
+      charts.weekday = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: '요일별 접수 건수',
+              data: totals,
+              backgroundColor: barColors,
+              borderRadius: 10,
+              barPercentage: 0.52,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              padding: 12,
+              cornerRadius: 10,
+              callbacks: {
+                label: (ctx) => ` 총 접수: ${ctx.parsed.y}건`,
+                afterBody: (items) => {
+                  const i = items[0].dataIndex;
+                  const days = activeDayCounts[i];
+                  const avg = days > 0 ? (totals[i] / days).toFixed(2) : '0.00';
+                  return [`발생 일수: ${days}일`, `해당 요일 평균: ${avg}건/일`];
+                },
+              },
+            },
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { weight: '600', size: 12 } },
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: '#f1f5f9' },
+              ticks: { callback: (v) => `${v}건` },
+            },
+          },
+        },
+      });
+    }
+
+    // 차트 4: 월별 접수 발생일 대비 일평균 처리량 추이 (이중 축 콤보 차트)
+    function renderDensityTrendChart() {
+      const ctx = document.getElementById('densityTrendChart').getContext('2d');
+      const labels = MONTHLY_STATS.map((m) => m.label);
+      const activeDays = MONTHLY_STATS.map((m) => m.activeDays);
+      const dailyAvgs = MONTHLY_STATS.map((m) => m.dailyAvg);
+
+      charts.densityTrend = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              type: 'bar',
+              label: '접수 발생일수 (일)',
+              data: activeDays,
+              backgroundColor: 'rgba(148, 163, 184, 0.35)',
+              hoverBackgroundColor: 'rgba(100, 116, 139, 0.5)',
+              borderRadius: 6,
+              barPercentage: 0.55,
+              yAxisID: 'yDays',
+              order: 2,
+            },
+            {
+              type: 'line',
+              label: '일평균 처리량 (건/일)',
+              data: dailyAvgs,
+              borderColor: '#2563eb',
+              backgroundColor: 'rgba(37, 99, 235, 0.1)',
+              borderWidth: 2.5,
+              pointBackgroundColor: '#ffffff',
+              pointBorderColor: '#1e3a8a',
+              pointBorderWidth: 2,
+              pointRadius: 4.5,
+              pointHoverRadius: 6,
+              tension: 0.3,
+              fill: true,
+              yAxisID: 'yAvg',
+              order: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { usePointStyle: true, boxWidth: 8, padding: 16, font: { size: 12 } },
+            },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              padding: 12,
+              cornerRadius: 10,
+              callbacks: {
+                afterBody: (items) => {
+                  const stat = MONTHLY_STATS[items[0].dataIndex];
+                  return `월 총 처리량: ${stat.total}건`;
+                },
+              },
+            },
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { weight: '600', size: 12 } },
+            },
+            yDays: {
+              type: 'linear',
+              position: 'left',
+              beginAtZero: true,
+              suggestedMax: 20,
+              grid: { color: '#f1f5f9' },
+              ticks: { callback: (v) => `${v}일` },
+              title: { display: true, text: '발생일수', font: { size: 11 } },
+            },
+            yAvg: {
+              type: 'linear',
+              position: 'right',
+              beginAtZero: true,
+              suggestedMax: 3.5,
+              grid: { drawOnChartArea: false },
+              ticks: { callback: (v) => `${v}건` },
+              title: { display: true, text: '일평균', font: { size: 11 } },
+            },
+          },
+        },
+      });
+    }
+
+    /**
+     * ============================================================================
+     * 6. 일별 상세 내역 테이블 렌더링 (필터, 검색, 정렬, 집중일 강조)
+     * ============================================================================
+     */
+    function renderDetailTable() {
+      const tbody = document.getElementById('detailTableBody');
+      let list = [...getMonthFilteredRecords()];
+
+      // 5건 이상 집중일만 보기 필터
+      if (state.peakOnly) {
+        list = list.filter((r) => r.count >= 5);
+      }
+
+      // 검색어 필터 (날짜, 월, 요일, 건수)
+      const q = state.searchQuery.trim().toLowerCase();
+      if (q) {
+        list = list.filter((r) =>
+          r.displayDate.toLowerCase().includes(q) ||
+          r.isoDate.includes(q) ||
+          r.shortDate.includes(q) ||
+          r.weekdayName.includes(q) ||
+          `${r.count}건`.includes(q)
+        );
+      }
+
+      // 정렬 적용
+      list.sort((a, b) => {
+        switch (state.sortBy) {
+          case 'date-desc': return b.timestamp - a.timestamp;
+          case 'count-desc': return b.count - a.count || a.timestamp - b.timestamp;
+          case 'count-asc': return a.count - b.count || a.timestamp - b.timestamp;
+          case 'date-asc':
+          default: return a.timestamp - b.timestamp;
+        }
+      });
+
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="py-12 text-center text-slate-400">
+              조건에 일치하는 민원 접수 내역이 없습니다.
+            </td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = list.map((r, index) => {
+          const isPeak = r.count >= 5;
+          const isMid = r.count >= 3 && r.count < 5;
+          const barWidth = Math.round((r.count / 8) * 100);
+
+          const statusBadge = isPeak
+            ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                 <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>집중일 (5건+)
+               </span>`
+            : isMid
+              ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700">보통 이상</span>`
+              : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">일반</span>`;
+
+          const rowBg = isPeak ? 'bg-amber-50/40 hover:bg-amber-50/80' : 'hover:bg-slate-50';
+
+          return `
+            <tr class="${rowBg} transition-colors">
+              <td class="py-3 px-5 text-center text-xs font-medium text-slate-400">${index + 1}</td>
+              <td class="py-3 px-5 font-semibold text-slate-900 whitespace-nowrap">
+                ${r.isoDate}
+                <span class="text-xs font-normal text-slate-400 ml-1">(${r.displayDate})</span>
+              </td>
+              <td class="py-3 px-5 text-slate-600 whitespace-nowrap">${r.month}월</td>
+              <td class="py-3 px-5 whitespace-nowrap">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700">
+                  ${r.weekdayName}
+                </span>
+              </td>
+              <td class="py-3 px-5 text-right whitespace-nowrap">
+                <span class="text-sm font-extrabold ${isPeak ? 'text-amber-700' : 'text-slate-900'}">${r.count}건</span>
+              </td>
+              <td class="py-3 px-5 whitespace-nowrap">${statusBadge}</td>
+              <td class="py-3 px-5 hidden sm:table-cell">
+                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full ${isPeak ? 'bg-amber-500' : 'bg-blue-500'}" style="width: ${barWidth}%"></div>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // 테이블 하단 요약 업데이트
+      const sumCount = list.reduce((s, r) => s + r.count, 0);
+      const avgCount = list.length > 0 ? (sumCount / list.length).toFixed(2) : '0.00';
+      document.getElementById('tableSummaryLeft').innerHTML =
+        `총 <strong class="text-slate-900">${list.length}</strong>개 접수일 표시 중`;
+      document.getElementById('tableSummaryRight').innerHTML = `
+        <span>조회 합계: <strong class="text-blue-700 font-bold">${sumCount}건</strong></span>
+        <span>조회 일평균: <strong class="text-slate-900 font-bold">${avgCount}건/일</strong></span>
+      `;
+    }
+
+    /**
+     * ============================================================================
+     * 7. 필터 연동 및 CSV 다운로드 핸들러
+     * ============================================================================
+     */
+    function setMonthFilter(monthVal) {
+      state.selectedMonth = String(monthVal);
+      document.getElementById('headerMonthFilter').value = state.selectedMonth;
+
+      renderQuickMonthButtons();
+      updateKpiCards();
+      renderMonthlyComboChart();
+      renderWeekdayChart();
+      renderDetailTable();
+
+      if (state.selectedMonth === 'all') {
+        showToast('전체 기간(1~11월) 데이터를 표시합니다.');
+      } else {
+        showToast(`2026년 ${state.selectedMonth}월 데이터로 필터링했습니다.`);
+      }
+    }
+
+    function exportToCsv() {
+      try {
+        const targetRecords = getMonthFilteredRecords();
+        const header = ['연도', '월', '접수일자', '요일', '접수건수', '비고'];
+        const rows = targetRecords.map((r) => [
+          2026,
+          `${r.month}월`,
+          r.isoDate,
+          r.weekdayName,
+          r.count,
+          r.count >= 5 ? '집중일(5건 이상)' : '일반',
+        ]);
+
+        const csvContent = '\uFEFF' + [header, ...rows].map((row) => row.join(',')).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const suffix = state.selectedMonth === 'all' ? '전체(1-11월)' : `${state.selectedMonth}월`;
+        link.href = url;
+        link.setAttribute('download', `2026년_차고지설치확인_민원현황_${suffix}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        showToast(`CSV 파일(${suffix}, ${targetRecords.length}건)을 다운로드했습니다.`, 'success');
+      } catch (err) {
+        console.error('CSV 다운로드 오류:', err);
+        showToast('CSV 파일 생성 중 오류가 발생했습니다.');
+      }
+    }
+
+    /**
+     * ============================================================================
+     * 8. 이벤트 리스너 바인딩 및 초기 실행
+     * ============================================================================
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+      // 헤더 월별 드롭다운
+      document.getElementById('headerMonthFilter').addEventListener('change', (e) => {
+        setMonthFilter(e.target.value);
+      });
+
+      // 필터 초기화 버튼
+      document.getElementById('resetFilterBtn').addEventListener('click', () => {
+        setMonthFilter('all');
+      });
+
+      // CSV 다운로드 버튼
+      document.getElementById('downloadCsvBtn').addEventListener('click', exportToCsv);
+
+      // 테이블 검색 입력
+      document.getElementById('tableSearchInput').addEventListener('input', (e) => {
+        state.searchQuery = e.target.value;
+        renderDetailTable();
+      });
+
+      // 테이블 정렬 변경
+      document.getElementById('tableSortSelect').addEventListener('change', (e) => {
+        state.sortBy = e.target.value;
+        renderDetailTable();
+      });
+
+      // 5건 이상 집중일 토글 버튼
+      const peakToggle = document.getElementById('peakOnlyToggle');
+      peakToggle.addEventListener('click', () => {
+        state.peakOnly = !state.peakOnly;
+        peakToggle.setAttribute('aria-pressed', String(state.peakOnly));
+        if (state.peakOnly) {
+          peakToggle.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
+          peakToggle.classList.add('bg-amber-50', 'text-amber-800', 'border-amber-300', 'font-semibold');
+        } else {
+          peakToggle.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+          peakToggle.classList.remove('bg-amber-50', 'text-amber-800', 'border-amber-300', 'font-semibold');
+        }
+        renderDetailTable();
+      });
+
+      // 초기 화면 구성 실행
+      renderQuickMonthButtons();
+      updateKpiCards();
+      initCharts();
+      renderDetailTable();
+    });
+  </script>
+</body>
+</html>
